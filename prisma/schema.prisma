@@ -1,0 +1,59 @@
+// Schema de BINOMA e-commerce
+// Nota sobre precios: todos los montos son enteros en PESOS ARGENTINOS (no centavos).
+// Ej: 185000 = $185.000. Mercado Pago acepta este formato directamente.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  slug        String   @unique // para URLs: /producto/banco-fenolico-natural
+  name        String
+  description String
+  priceDirect Int // precio de venta al público desde la tienda
+  priceRetail Int // precio mayorista / revendedor
+  category    String // "banco", "mesa", "silla"
+  images      String[] // URLs de Cloudinary
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([category])
+}
+
+model Order {
+  id           String   @id @default(uuid())
+  customerName String
+  email        String
+  phone        String
+  total        Int
+  status       String   @default("pendiente") // "pendiente" | "pagado" | "enviado"
+  mpPaymentId  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  items OrderItem[]
+
+  @@index([status])
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Int // precio unitario congelado al momento de la compra
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}

@@ -1,0 +1,24 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import productsRoutes from "./routes/products.routes.js";
+import { errorHandler, notFound } from "./middlewares/error.middleware.js";
+
+const app = express();
+const PORT = Number(process.env.PORT) || 3000;
+
+app.use(cors({ origin: process.env.CORS_ORIGIN ?? "*" }));
+app.use(express.json());
+
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", service: "binoma-api" });
+});
+
+app.use("/api/products", productsRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`BINOMA API escuchando en http://localhost:${PORT}`);
+});
