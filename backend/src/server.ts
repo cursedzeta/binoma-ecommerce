@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import ordersRoutes from "./routes/orders.routes.js";
 import productsRoutes from "./routes/products.routes.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 
@@ -15,6 +16,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/products", productsRoutes);
+app.use("/api/orders", ordersRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
