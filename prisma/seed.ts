@@ -43,6 +43,16 @@ const products = [
     images: ["https://placehold.co/1200x900/e8e4dd/1a1a1a?text=Mesa+Nido"],
     stock: 0, // sin stock a propósito, para probar ese estado en el frontend
   },
+  {
+    slug: "mesa-auxiliar-nido-2",
+    name: "Mesa Auxiliar Nido 2",
+    description:
+      "Juego de dos mesas auxiliares apilables en fenólico. Se guardan una dentro de la otra ocupando el espacio de una sola.",
+    price: 228000,
+    category: "mesa",
+    images: ["https://placehold.co/1200x900/e8e4dd/1a1a1a?text=Mesa+Nido"],
+    stock: 10, // sin stock a propósito, para probar ese estado en el frontend
+  },
 ];
 
 async function main() {
