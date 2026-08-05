@@ -1,13 +1,14 @@
-node_modules
-dist
+# Cada subproyecto tiene su propio .gitignore con lo especifico.
+# Esto es la red de seguridad a nivel raiz.
 
-# Cliente de Prisma generado (se regenera con `prisma generate`)
-/src/generated/prisma
-
-# Variables de entorno: nunca commitear. Ver .env.example
+node_modules/
 .env
 .env.local
 .env.*.local
 
-*.log
+# Sistema operativo / editores
 .DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

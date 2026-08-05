@@ -1,47 +1,61 @@
-# binoma-api
+# BINOMA E-commerce
 
-API REST del e-commerce de **BINOMA** — muebles de diseño en fenólico, Córdoba, Argentina.
+Tienda online de **BINOMA** — muebles de diseño en fenólico. Córdoba, Argentina.
+
+## Estructura
+
+```
+binoma-ecommerce/
+├── backend/     API REST — Node + Express + Prisma + PostgreSQL (Neon)
+└── frontend/    Tienda — React + Vite + TypeScript + Tailwind
+```
+
+Cada carpeta tiene su propio README con el detalle.
+
+## Levantar el proyecto
+
+Hacen falta **dos terminales**, una por servicio.
+
+```bash
+# Terminal 1 — API en http://localhost:3000
+cd backend
+npm install
+cp .env.example .env      # completar DATABASE_URL con la connection string de Neon
+npx prisma migrate deploy
+npm run db:seed
+npm run dev
+
+# Terminal 2 — Tienda en http://localhost:5173
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
 
 ## Stack
 
-Node.js + Express 5 + TypeScript · PostgreSQL (Neon) · Prisma 7 · Mercado Pago (pendiente) · Cloudinary (pendiente)
-
-## Puesta en marcha
-
-```bash
-npm install
-cp .env.example .env      # completar DATABASE_URL con la connection string de Neon
-npm run db:migrate        # crea las tablas
-npm run db:seed           # carga productos de prueba
-npm run dev               # http://localhost:3000
-```
-
-## Scripts
-
-| Script | Qué hace |
+| Capa | Tecnología |
 |---|---|
-| `npm run dev` | Servidor en modo watch con tsx |
-| `npm run build` | `prisma generate` + compilación a `dist/` |
-| `npm start` | Corre el build (producción) |
-| `npm run db:migrate` | Aplica migraciones de Prisma |
-| `npm run db:seed` | Carga los productos de prueba |
-| `npm run db:studio` | Explorador visual de la base |
-| `npm run typecheck` | TypeScript sin emitir |
-
-## Endpoints
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/health` | Chequeo de estado |
-| `GET` | `/api/products` | Lista de productos. Filtro opcional `?category=banco` |
-| `GET` | `/api/products/:slug` | Detalle por slug |
-
-## Convenciones
-
-- **Precios**: enteros en pesos argentinos, sin centavos. `185000` = $185.000.
-- **Slugs**: identifican el producto en las URLs públicas (`/producto/banco-fenolico-natural`).
-- **Prisma 7**: la conexión va por driver adapter (`@prisma/adapter-pg`), no por la URL del schema. El cliente se genera en `src/generated/prisma` y no se commitea.
+| Frontend | React + Vite + TypeScript + Tailwind |
+| Backend | Node.js + Express |
+| Base de datos | PostgreSQL en Neon |
+| ORM | Prisma |
+| Pagos | Mercado Pago |
+| Imágenes | Cloudinary |
+| Hosting | Vercel (frontend) + Railway (backend) |
 
 ## Ramas
 
 `main` (producción) · `dev` (integración) · `feature/*` (trabajo en curso)
+
+## Estado
+
+| Sprint | Estado |
+|---|---|
+| 1. Setup y modelo de datos | ✅ |
+| 2. Catálogo de productos | ✅ |
+| 3. Carrito de compras | ⬜ |
+| 4. Checkout + Mercado Pago | ⬜ |
+| 5. Panel de administración | ⬜ |
+| 6. Cross-promoción Zeta3 | ⬜ |
+| 7. Deploy y pruebas finales | ⬜ |
