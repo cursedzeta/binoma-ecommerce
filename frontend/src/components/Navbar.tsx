@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
+  const { totalItems } = useCart();
+
   return (
     <header className="border-b border-neutral-300">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
@@ -11,8 +14,9 @@ export default function Navbar() {
           <Link to="/" className="hover:text-neutral-900">
             Catálogo
           </Link>
-          {/* Carrito: sprint 3 */}
-          <span className="text-neutral-400">Carrito (0)</span>
+          <Link to="/carrito" className="hover:text-neutral-900">
+            Carrito ({totalItems})
+          </Link>
         </div>
       </nav>
     </header>

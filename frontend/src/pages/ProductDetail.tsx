@@ -1,10 +1,12 @@
 import { Link, useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import { useProduct } from "../hooks/useProducts";
 import { formatPrice } from "../lib/format";
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, loading, error } = useProduct(slug ?? "");
+  const { addItem, quantityOf } = useCart();
 
   if (loading) {
     return <Estado>Cargando producto...</Estado>;
@@ -22,6 +24,8 @@ export default function ProductDetail() {
   }
 
   const sinStock = product.stock === 0;
+  const enCarrito = quantityOf(product.id);
+  const topeAlcanzado = enCarrito >= product.stock;
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -59,13 +63,26 @@ export default function ProductDetail() {
             {sinStock ? "Sin stock" : `${product.stock} disponibles`}
           </p>
 
-          {/* Agregar al carrito: sprint 3 */}
           <button
-            disabled={sinStock}
+            onClick={() => addItem(product.id, product.stock)}
+            disabled={sinStock || topeAlcanzado}
             className="mt-4 w-full border border-neutral-900 px-6 py-3 text-neutral-900 disabled:border-neutral-300 disabled:text-neutral-400"
           >
-            {sinStock ? "Sin stock" : "Agregar al carrito"}
+            {sinStock
+              ? "Sin stock"
+              : topeAlcanzado
+                ? "Ya tenés todo el stock en el carrito"
+                : "Agregar al carrito"}
           </button>
+
+          {enCarrito > 0 && (
+            <p className="mt-3 text-sm text-neutral-600">
+              {enCarrito} en el carrito.{" "}
+              <Link to="/carrito" className="underline">
+                Ver carrito
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </main>
