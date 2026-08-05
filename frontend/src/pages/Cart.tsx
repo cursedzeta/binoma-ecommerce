@@ -135,13 +135,12 @@ export default function Cart() {
         <div className="text-right">
           <p className="text-sm text-neutral-600">Total</p>
           <p className="text-2xl text-neutral-900">{formatPrice(total)}</p>
-          {/* Checkout: sprint 4 */}
-          <button
-            disabled
-            className="mt-4 border border-neutral-300 px-6 py-3 text-neutral-400"
+          <Link
+            to="/checkout"
+            className="mt-4 inline-block border border-neutral-900 px-6 py-3 text-neutral-900"
           >
             Finalizar compra
-          </button>
+          </Link>
         </div>
       </div>
     </main>
