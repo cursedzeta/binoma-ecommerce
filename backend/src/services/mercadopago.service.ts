@@ -56,6 +56,61 @@ export function estaConfigurado() {
 }
 
 /**
+ * Avisa al arrancar si el token mueve plata real.
+ *
+ * No alcanza con mirar el prefijo: Mercado Pago entrega las credenciales de
+ * prueba a traves de una cuenta de vendedor de prueba, y esas tambien empiezan
+ * con APP_USR-. La unica forma confiable de saberlo es preguntarle a Mercado
+ * Pago de quien es el token: las cuentas de prueba vienen con el tag
+ * "test_user".
+ *
+ * No bloquea el arranque: si la consulta falla (sin internet, por ejemplo) el
+ * servidor tiene que levantar igual.
+ */
+export async function advertirSiElTokenEsDeProduccion() {
+  const token = process.env.MP_ACCESS_TOKEN;
+
+  if (!token || process.env.NODE_ENV === "production") return;
+
+  try {
+    const res = await fetch("https://api.mercadopago.com/users/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      console.warn(
+        `Mercado Pago: no se pudo validar el token (HTTP ${res.status}). Revisá MP_ACCESS_TOKEN.`,
+      );
+      return;
+    }
+
+    const cuenta = (await res.json()) as { nickname?: string; tags?: string[] };
+
+    if (cuenta.tags?.includes("test_user")) {
+      console.log(`Mercado Pago: cuenta de PRUEBA (${cuenta.nickname}). Sin plata real.`);
+      return;
+    }
+
+    console.warn(
+      [
+        "",
+        "  ############################################################",
+        "  #  ATENCION: el token es de una cuenta REAL                #",
+        `  #  Cuenta: ${(cuenta.nickname ?? "desconocida").padEnd(45)}#`,
+        "  #                                                          #",
+        "  #  Cada pago que se complete cobra DINERO REAL.            #",
+        "  #  Para probar, usá las credenciales de prueba:            #",
+        "  #  Tus integraciones > tu app > Credenciales de prueba     #",
+        "  ############################################################",
+        "",
+      ].join("\n"),
+    );
+  } catch (err) {
+    console.warn("Mercado Pago: no se pudo verificar el tipo de cuenta.", err);
+  }
+}
+
+/**
  * Crea la preferencia de Checkout Pro y devuelve la URL a la que hay que
  * redirigir al comprador.
  *
