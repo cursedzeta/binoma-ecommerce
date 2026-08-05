@@ -16,8 +16,7 @@ model Product {
   slug        String   @unique // para URLs: /producto/banco-fenolico-natural
   name        String
   description String
-  priceDirect Int // precio de venta al público desde la tienda
-  priceRetail Int // precio mayorista / revendedor
+  price       Int // precio de venta, unico
   category    String // "banco", "mesa", "silla"
   images      String[] // URLs de Cloudinary
   stock       Int      @default(0)
