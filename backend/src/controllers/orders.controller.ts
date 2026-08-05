@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { validarPedido } from "../lib/validarPedido.js";
+import { crearPreferencia, estaConfigurado } from "../services/mercadopago.service.js";
 
 // POST /api/orders
 //
@@ -92,7 +93,41 @@ export async function createOrder(req: Request, res: Response) {
     },
   });
 
-  res.status(201).json(order);
+  // Sin credenciales de Mercado Pago el pedido igual se crea. Sirve para
+  // desarrollo y para que los tests del calculo de totales no dependan de una
+  // API externa.
+  if (!estaConfigurado()) {
+    return res.status(201).json({ order, checkoutUrl: null });
+  }
+
+  try {
+    const { preferenceId, checkoutUrl } = await crearPreferencia({
+      orderId: order.id,
+      comprador: { nombre: order.customerName, email: order.email },
+      items: order.items.map((item) => ({
+        id: item.productId,
+        title: item.product.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      })),
+    });
+
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { mpPreferenceId: preferenceId },
+    });
+
+    res.status(201).json({ order: { ...order, mpPreferenceId: preferenceId }, checkoutUrl });
+  } catch (err) {
+    // El pedido ya esta guardado como "pendiente": no se pierde. Devolvemos su
+    // id para que el frontend pueda reintentar el pago sin recargarlo todo.
+    console.error("Error creando la preferencia de Mercado Pago:", err);
+
+    res.status(502).json({
+      error: "No se pudo iniciar el pago. Tu pedido quedó guardado.",
+      orderId: order.id,
+    });
+  }
 }
 
 // GET /api/orders/:id

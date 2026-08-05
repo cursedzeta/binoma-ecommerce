@@ -11,14 +11,22 @@ const API = process.env.TEST_API_URL ?? "http://localhost:3000";
 
 type ProductoApi = { id: string; name: string; price: number; stock: number };
 
-// La API devuelve el pedido o un error con detalles, segun el status.
+type Pedido = {
+  id: string;
+  total: number;
+  status: string;
+  mpPreferenceId: string | null;
+  items: { price: number; quantity: number }[];
+};
+
+// En el camino feliz la API devuelve { order, checkoutUrl }; ante un error,
+// { error, detalles }.
 type RespuestaPedido = {
-  id?: string;
-  total?: number;
-  status?: string;
-  items?: { price: number; quantity: number }[];
+  order?: Pedido;
+  checkoutUrl?: string | null;
   error?: string;
   detalles?: string[];
+  orderId?: string;
 };
 
 const pedidosCreados: string[] = [];
@@ -31,8 +39,12 @@ async function post(body: unknown) {
   });
 
   const json = (await res.json()) as RespuestaPedido;
-  if (res.status === 201 && typeof json.id === "string") {
-    pedidosCreados.push(json.id);
+
+  // Guardamos el id para limpiar despues, venga por donde venga: si Mercado
+  // Pago falla, el pedido igual quedo creado y hay que borrarlo.
+  const id = json.order?.id ?? json.orderId;
+  if (typeof id === "string") {
+    pedidosCreados.push(id);
   }
 
   return { status: res.status, json };
@@ -53,13 +65,21 @@ describe("POST /api/orders", () => {
     }
 
     const catalogo = (await res.json()) as ProductoApi[];
-    const conStock = catalogo.find((p) => p.stock > 1);
 
-    if (!conStock) {
-      throw new Error("El catalogo no tiene ningun producto con stock para probar.");
+    // El producto de prueba tiene que tener id valido (Prisma Studio permite
+    // guardar productos con id vacio si se toca el campo al crearlos) y un
+    // stock que deje pedir una unidad de mas sin pasar el tope de 50.
+    const usable = catalogo.find(
+      (p) => typeof p.id === "string" && p.id.length > 0 && p.stock > 1 && p.stock < 50,
+    );
+
+    if (!usable) {
+      throw new Error(
+        "No hay ningun producto usable para probar: hace falta uno con id valido y stock entre 2 y 49.",
+      );
     }
 
-    producto = conStock;
+    producto = usable;
   });
 
   after(async () => {
@@ -78,10 +98,10 @@ describe("POST /api/orders", () => {
     });
 
     assert.equal(status, 201);
-    assert.equal(json.total, producto.price * 2);
-    assert.equal(json.status, "pendiente");
-    assert.equal(json.items?.length, 1);
-    assert.equal(json.items?.[0]?.price, producto.price);
+    assert.equal(json.order?.total, producto.price * 2);
+    assert.equal(json.order?.status, "pendiente");
+    assert.equal(json.order?.items.length, 1);
+    assert.equal(json.order?.items[0]?.price, producto.price);
   });
 
   // El test que mas importa de todo el archivo.
@@ -95,8 +115,16 @@ describe("POST /api/orders", () => {
     });
 
     assert.equal(status, 201);
-    assert.equal(json.total, producto.price * 2, "el total tiene que salir de la base");
-    assert.equal(json.items?.[0]?.price, producto.price, "el precio unitario tambien");
+    assert.equal(
+      json.order?.total,
+      producto.price * 2,
+      "el total tiene que salir de la base",
+    );
+    assert.equal(
+      json.order?.items[0]?.price,
+      producto.price,
+      "el precio unitario tambien",
+    );
   });
 
   it("congela el precio unitario en el pedido", async () => {
@@ -109,7 +137,9 @@ describe("POST /api/orders", () => {
 
     // El OrderItem guarda su propia copia del precio: si manana cambia la lista,
     // este pedido no se entera.
-    const guardado = await prisma.orderItem.findFirst({ where: { orderId: json.id } });
+    const guardado = await prisma.orderItem.findFirst({
+      where: { orderId: json.order?.id },
+    });
     assert.equal(guardado?.price, producto.price);
   });
 

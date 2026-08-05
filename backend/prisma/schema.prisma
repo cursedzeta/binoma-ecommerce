@@ -35,7 +35,8 @@ model Order {
   phone        String
   total        Int
   status       String   @default("pendiente") // "pendiente" | "pagado" | "enviado"
-  mpPaymentId  String?
+  mpPreferenceId String? // preferencia de Checkout Pro asociada al pedido
+  mpPaymentId    String? @unique // pago confirmado por Mercado Pago
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
