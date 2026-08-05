@@ -48,7 +48,7 @@ export default function ProductDetail() {
           </p>
           <h1 className="mt-2 text-2xl text-neutral-900">{product.name}</h1>
           <p className="mt-4 text-xl text-neutral-900">
-            {formatPrice(product.priceDirect)}
+            {formatPrice(product.price)}
           </p>
 
           <p className="mt-6 leading-relaxed text-neutral-700">

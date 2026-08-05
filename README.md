@@ -33,7 +33,6 @@ funcione de punta a punta.
 
 - Los precios llegan de la API como enteros en pesos argentinos y se formatean con
   `Intl.NumberFormat("es-AR")` en [src/lib/format.ts](src/lib/format.ts).
-- La API pública no expone `priceRetail` (lista mayorista).
 - Los productos se identifican por `slug` en las URLs, no por id.
 
 ## Ramas

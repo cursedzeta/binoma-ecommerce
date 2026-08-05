@@ -26,7 +26,7 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.category}
         </p>
         <h2 className="text-base text-neutral-900">{product.name}</h2>
-        <p className="text-sm text-neutral-700">{formatPrice(product.priceDirect)}</p>
+        <p className="text-sm text-neutral-700">{formatPrice(product.price)}</p>
         {sinStock && (
           <p className="text-xs uppercase tracking-wide text-neutral-500">Sin stock</p>
         )}
