@@ -1,4 +1,11 @@
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import {
+  InvalidWebhookSignatureError,
+  MercadoPagoConfig,
+  MPNotFoundError,
+  Payment,
+  Preference,
+  WebhookSignatureValidator,
+} from "mercadopago";
 
 // Este servicio no sabe nada de Express: no recibe req ni devuelve res. Recibe
 // datos y devuelve datos, asi se puede probar sin levantar un servidor.
@@ -168,5 +175,99 @@ export async function crearPreferencia(
   return {
     preferenceId: respuesta.id,
     checkoutUrl: respuesta.init_point,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Webhooks
+// ---------------------------------------------------------------------------
+
+/**
+ * Verifica que la notificacion venga realmente de Mercado Pago.
+ *
+ * /api/webhooks/mercadopago es una URL publica: cualquiera puede mandarle un
+ * POST diciendo "el pedido de Ana esta pagado". Mercado Pago firma cada aviso
+ * con una clave secreta que solo tenemos nosotros y ellos (HMAC-SHA256 sobre
+ * data.id + x-request-id + timestamp), asi que una firma valida prueba el
+ * origen.
+ *
+ * Devuelve false si no hay secreto configurado: sin clave no hay nada que
+ * comparar, y dar por buena una notificacion sin verificar seria peor.
+ */
+export function firmaWebhookEsValida(datos: {
+  xSignature: string | undefined;
+  xRequestId: string | undefined;
+  dataId: string | undefined;
+}): boolean {
+  const secret = process.env.MP_WEBHOOK_SECRET;
+
+  if (!secret) {
+    console.error(
+      "Falta MP_WEBHOOK_SECRET: se rechazan los webhooks porque no se pueden verificar. " +
+        "La clave está en Tus integraciones > tu app > Webhooks > Configurar notificaciones.",
+    );
+    return false;
+  }
+
+  if (!datos.xSignature || !datos.dataId) return false;
+
+  try {
+    WebhookSignatureValidator.validate({
+      xSignature: datos.xSignature,
+      xRequestId: datos.xRequestId ?? "",
+      dataId: datos.dataId,
+      secret,
+    });
+    return true;
+  } catch (err) {
+    if (err instanceof InvalidWebhookSignatureError) return false;
+    throw err;
+  }
+}
+
+export type PagoMercadoPago = {
+  id: string;
+  /** "approved", "pending", "rejected", "refunded", ... */
+  status: string;
+  /** El id de nuestra Order, tal como se lo mandamos al crear la preferencia. */
+  externalReference: string | null;
+  /** Monto efectivamente aprobado, en pesos. */
+  montoAprobado: number | null;
+};
+
+/**
+ * Le pregunta a Mercado Pago por un pago.
+ *
+ * La notificacion solo dice "paso algo con el pago 123". Que ese pago exista,
+ * sea nuestro y este aprobado se averigua aca, contra la API. Nunca se toma el
+ * estado del cuerpo del webhook.
+ *
+ * Devuelve null si el pago no existe. El SDK lanza MPNotFoundError en ese caso,
+ * y hay que atraparlo: si la excepcion sube, el webhook responde 500 y Mercado
+ * Pago reintenta cada 15 minutos, para siempre, por un pago que no existe.
+ */
+export async function obtenerPago(paymentId: string): Promise<PagoMercadoPago | null> {
+  const payment = new Payment(getCliente());
+
+  let datos;
+
+  try {
+    datos = await payment.get({ id: paymentId });
+  } catch (err) {
+    const noExiste =
+      err instanceof MPNotFoundError ||
+      (typeof err === "object" && err !== null && "status" in err && err.status === 404);
+
+    if (noExiste) return null;
+    throw err;
+  }
+
+  if (!datos?.id) return null;
+
+  return {
+    id: String(datos.id),
+    status: datos.status ?? "unknown",
+    externalReference: datos.external_reference ?? null,
+    montoAprobado: datos.transaction_details?.total_paid_amount ?? null,
   };
 }

@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import ordersRoutes from "./routes/orders.routes.js";
 import productsRoutes from "./routes/products.routes.js";
+import webhooksRoutes from "./routes/webhooks.routes.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 import { advertirSiElTokenEsDeProduccion } from "./services/mercadopago.service.js";
 
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/products", productsRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/webhooks", webhooksRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
