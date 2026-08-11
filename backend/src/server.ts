@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import adminRoutes from "./routes/admin.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 import ordersRoutes from "./routes/orders.routes.js";
 import productsRoutes from "./routes/products.routes.js";
 import retornoRoutes from "./routes/retorno.routes.js";
@@ -22,6 +24,8 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/products", productsRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/webhooks", webhooksRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Fuera de /api a proposito: son URLs de navegador, no de la API. Solo hacen
 // falta mientras PUBLIC_WEB_URL no apunte al frontend publico.
