@@ -19,6 +19,23 @@ export async function recibirWebhookMercadoPago(req: Request, res: Response) {
   const dataId = typeof req.query["data.id"] === "string" ? req.query["data.id"] : undefined;
   const tipo = typeof req.query.type === "string" ? req.query.type : undefined;
 
+  // Mercado Pago manda cada evento por DOS canales a la vez:
+  //
+  //   Webhook (moderno):  ?data.id=123&type=payment      + header x-signature
+  //   IPN (legacy):       ?id=123&topic=payment          sin firma
+  //
+  // Los IPN no se pueden verificar —no llevan firma— asi que no los usamos.
+  // Pero hay que responderles 200: con un 401, Mercado Pago los reintenta cada
+  // 15 minutos para siempre, por algo que nunca vamos a aceptar.
+  //
+  // Responder 200 sin actuar es seguro: no tocamos nada. El evento igual nos
+  // llega por el canal firmado, y si ese fallara, esta la reconciliacion.
+  const esIPN = !tipo && typeof req.query.topic === "string";
+
+  if (esIPN) {
+    return res.status(200).json({ ignorado: "notificación IPN sin firma" });
+  }
+
   const firmaOk = firmaWebhookEsValida({
     xSignature: req.header("x-signature") ?? undefined,
     xRequestId: req.header("x-request-id") ?? undefined,
