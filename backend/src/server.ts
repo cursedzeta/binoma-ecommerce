@@ -14,7 +14,19 @@ import { iniciarReconciliacionPeriodica } from "./services/reconciliacion.servic
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? "*" }));
+// CORS_ORIGIN acepta varios origenes separados por coma: en produccion conviven
+// el dominio propio y el que asigna Vercel, y durante un deploy hay que
+// permitir los dos. Sin valor, se permite cualquiera (solo util en desarrollo).
+const origenesPermitidos = (process.env.CORS_ORIGIN ?? "")
+  .split(",")
+  .map((o) => o.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: origenesPermitidos.length > 0 ? origenesPermitidos : true,
+  }),
+);
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {

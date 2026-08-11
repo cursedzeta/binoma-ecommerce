@@ -1,0 +1,63 @@
+# Configuración del backend para Render (Blueprint).
+#
+# Se puede usar de dos formas: importando este archivo desde Render, o creando
+# el servicio a mano en el panel y copiando de acá los comandos.
+#
+# Las variables marcadas con "sync: false" NO se guardan en el repositorio: hay
+# que cargarlas a mano en el panel de Render. Son las que tienen secretos.
+
+services:
+  - type: web
+    name: binoma-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    region: oregon
+
+    # migrate deploy aplica las migraciones pendientes sin pedir confirmación,
+    # que es lo correcto en un deploy automático. Es distinto de migrate dev,
+    # que es interactivo y solo para desarrollo.
+    buildCommand: npm ci && npx prisma migrate deploy && npm run build
+    startCommand: npm start
+
+    # Render consulta esta ruta para saber si el servicio está sano. Elegimos
+    # /api/health a propósito porque NO toca la base de datos: si algún día
+    # falla, distingue "se cayó el servidor" de "se cayó Postgres".
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Neon, endpoint POOLED (el host lleva "-pooler")
+      - key: DATABASE_URL
+        sync: false
+
+      # Dominios del frontend, separados por coma.
+      # Ej: https://binoma.com.ar,https://binoma.vercel.app
+      - key: CORS_ORIGIN
+        sync: false
+
+      # Mercado Pago
+      - key: MP_ACCESS_TOKEN
+        sync: false
+      - key: MP_WEBHOOK_SECRET
+        sync: false
+
+      # URL pública del frontend. Al estar definida, las back_urls apuntan al
+      # sitio real y el puente de desarrollo /compra deja de montarse.
+      - key: PUBLIC_WEB_URL
+        sync: false
+
+      # URL pública de este mismo servicio en Render, para el webhook.
+      # Ej: https://binoma-api.onrender.com
+      - key: PUBLIC_API_URL
+        sync: false
+
+      # Panel de administración. Generar con: npm run admin:hash -- "contraseña"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: JWT_SECRET
+        sync: false

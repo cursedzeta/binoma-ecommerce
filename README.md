@@ -42,7 +42,57 @@ npm run dev
 | ORM | Prisma |
 | Pagos | Mercado Pago |
 | Imágenes | Cloudinary |
-| Hosting | Vercel (frontend) + Railway (backend) |
+| Hosting | Vercel (frontend) + Render (backend) |
+
+## Panel de administración
+
+En `/admin`. Credenciales en el `.env` del backend; el hash se genera con:
+
+```bash
+cd backend
+npm run admin:hash -- "tu contraseña"
+```
+
+## Deploy
+
+### Backend en Render
+
+Servicio web con **Root Directory** `backend`. Los comandos y las variables
+están en [backend/render.yaml](backend/render.yaml).
+
+```
+Build:  npm ci && npx prisma migrate deploy && npm run build
+Start:  npm start
+Health: /api/health
+```
+
+Las variables con secretos se cargan a mano en el panel de Render.
+
+### Frontend en Vercel
+
+Proyecto con **Root Directory** `frontend`. Vercel detecta Vite solo. Una única
+variable de entorno:
+
+```
+VITE_API_URL = https://binoma-api.onrender.com
+```
+
+[frontend/vercel.json](frontend/vercel.json) redirige todas las rutas a
+`index.html`: sin eso, recargar `/admin` o `/producto/algo` daría 404, porque
+esos archivos no existen — las rutas las resuelve React en el navegador.
+
+### Después de desplegar
+
+1. En Render, `CORS_ORIGIN` con los dominios del frontend separados por coma
+2. En Render, `PUBLIC_WEB_URL` y `PUBLIC_API_URL` con las URLs reales
+3. En Mercado Pago, el webhook apuntando a `PUBLIC_API_URL/api/webhooks/mercadopago`
+4. Recién ahí, credenciales productivas de Mercado Pago
+
+> El plan gratuito de Render duerme el servicio a los 15 minutos sin uso y tarda
+> cerca de un minuto en despertar. La primera visita después de un rato de calma
+> va a esperar, y un webhook de Mercado Pago puede vencer (tiene 22 segundos de
+> límite). No se pierde ninguna venta: la reconciliación confirma el pedido en la
+> siguiente pasada.
 
 ## Ramas
 
@@ -54,8 +104,8 @@ npm run dev
 |---|---|
 | 1. Setup y modelo de datos | ✅ |
 | 2. Catálogo de productos | ✅ |
-| 3. Carrito de compras | ⬜ |
-| 4. Checkout + Mercado Pago | ⬜ |
-| 5. Panel de administración | ⬜ |
+| 3. Carrito de compras | ✅ |
+| 4. Checkout + Mercado Pago | ✅ |
+| 5. Panel de administración | 🟡 pedidos sí; ABM de productos y Cloudinary pendientes |
 | 6. Cross-promoción Zeta3 | ⬜ |
-| 7. Deploy y pruebas finales | ⬜ |
+| 7. Deploy y pruebas finales | 🟡 configuración lista, falta desplegar |
