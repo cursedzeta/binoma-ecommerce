@@ -26,8 +26,27 @@ type CuerpoError = {
   detalles?: string[];
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}/api${path}`, init);
+// Token del panel de administración. Lo setea AuthContext al iniciar sesión,
+// y desde acá viaja solo en las peticiones que lo necesitan. Así ningún
+// componente tiene que acordarse de adjuntarlo.
+let tokenAdmin: string | null = null;
+
+export function setTokenAdmin(token: string | null) {
+  tokenAdmin = token;
+}
+
+type OpcionesRequest = RequestInit & { conAuth?: boolean };
+
+async function request<T>(path: string, init?: OpcionesRequest): Promise<T> {
+  const { conAuth, headers, ...resto } = init ?? {};
+
+  const res = await fetch(`${BASE_URL}/api${path}`, {
+    ...resto,
+    headers: {
+      ...headers,
+      ...(conAuth && tokenAdmin ? { Authorization: `Bearer ${tokenAdmin}` } : {}),
+    },
+  });
 
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as CuerpoError | null;
@@ -74,4 +93,59 @@ export function createOrder(datos: NuevoPedido) {
 
 export function getOrderById(id: string) {
   return request<Order>(`/orders/${id}`);
+}
+
+// --- Panel de administración ---------------------------------------------
+
+export async function login(email: string, password: string) {
+  const { token } = await request<{ token: string }>("/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  return token;
+}
+
+/** Verifica que el token guardado siga siendo válido. Tira si no lo es. */
+export function getSesion() {
+  return request<{ admin: { email: string } }>("/auth/me", { conAuth: true });
+}
+
+export function getPedidosAdmin(status?: string) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : "";
+  return request<Order[]>(`/admin/orders${query}`, { conAuth: true });
+}
+
+export type ResumenEstado = {
+  status: string;
+  cantidad: number;
+  total: number;
+};
+
+export function getResumenPedidos() {
+  return request<ResumenEstado[]>("/admin/orders/resumen", { conAuth: true });
+}
+
+export function cambiarEstadoPedido(id: string, status: string) {
+  return request<Order>(`/admin/orders/${id}/estado`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+    conAuth: true,
+  });
+}
+
+export type ResultadoReconciliacion = {
+  estado: "confirmado" | "ya-confirmado" | "sin-pedido" | "sin-pago-aprobado";
+  orderId: string;
+  paymentId?: string;
+};
+
+/** El botón "Verificar pago": le pregunta a Mercado Pago si el pedido se pagó. */
+export function reconciliarPedido(id: string) {
+  return request<ResultadoReconciliacion>(`/admin/orders/${id}/reconciliar`, {
+    method: "POST",
+    conAuth: true,
+  });
 }

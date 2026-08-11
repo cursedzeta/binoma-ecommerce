@@ -168,15 +168,16 @@ function DetallePedido({
 }
 
 function EstadoPedido({ status }: { status: Order["status"] }) {
-  const etiqueta = {
+  const etiquetas: Record<Order["status"], string> = {
     pendiente: "Pendiente de pago",
     pagado: "Pagado",
     enviado: "Enviado",
-  }[status];
+    cancelado: "Cancelado",
+  };
 
   return (
     <span className="border border-neutral-400 px-2 py-0.5 text-xs uppercase tracking-wide text-neutral-700">
-      {etiqueta}
+      {etiquetas[status]}
     </span>
   );
 }

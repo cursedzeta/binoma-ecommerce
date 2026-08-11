@@ -22,7 +22,7 @@ export type OrderItem = {
   product: { slug: string; name: string; images: string[] };
 };
 
-export type OrderStatus = "pendiente" | "pagado" | "enviado";
+export type OrderStatus = "pendiente" | "pagado" | "enviado" | "cancelado";
 
 export type Order = {
   id: string;
