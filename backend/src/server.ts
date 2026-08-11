@@ -6,6 +6,7 @@ import productsRoutes from "./routes/products.routes.js";
 import webhooksRoutes from "./routes/webhooks.routes.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 import { advertirSiElTokenEsDeProduccion } from "./services/mercadopago.service.js";
+import { iniciarReconciliacionPeriodica } from "./services/reconciliacion.service.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -27,4 +28,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`BINOMA API escuchando en http://localhost:${PORT}`);
   void advertirSiElTokenEsDeProduccion();
+  iniciarReconciliacionPeriodica();
 });

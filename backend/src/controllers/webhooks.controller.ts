@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.js";
 import { firmaWebhookEsValida, obtenerPago } from "../services/mercadopago.service.js";
+import { confirmarPedidoPagado } from "../services/pedidos.service.js";
 
 // POST /api/webhooks/mercadopago
 //
@@ -55,45 +55,25 @@ export async function recibirWebhookMercadoPago(req: Request, res: Response) {
     return res.status(200).json({ ignorado: "sin pedido asociado" });
   }
 
-  const order = await prisma.order.findUnique({
-    where: { id: pago.externalReference },
-    include: { items: true },
-  });
-
-  if (!order) {
-    console.warn(`Webhook: no existe el pedido ${pago.externalReference}`);
-    return res.status(200).json({ ignorado: "pedido inexistente" });
-  }
-
   // Un pago rechazado o pendiente no cambia nada: el pedido sigue esperando.
   if (pago.status !== "approved") {
     console.log(`Webhook: pago ${paymentId} en estado "${pago.status}", sin cambios.`);
     return res.status(200).json({ ok: true, status: pago.status });
   }
 
-  // Idempotencia: si ya lo procesamos, no volver a descontar stock.
-  if (order.status !== "pendiente") {
-    return res.status(200).json({ ok: true, yaProcesado: true });
+  // La confirmacion vive en pedidos.service y la comparte con la
+  // reconciliacion: la parte donde se mueve la plata esta escrita una sola vez.
+  const resultado = await confirmarPedidoPagado(pago.externalReference, pago.id);
+
+  if (resultado.estado === "sin-pedido") {
+    console.warn(`Webhook: no existe el pedido ${pago.externalReference}`);
+    return res.status(200).json({ ignorado: "pedido inexistente" });
   }
 
-  // Marcar como pagado y descontar stock van juntos o no van: si el descuento
-  // falla, el pedido no puede quedar cobrado sin haber reservado la mercadería.
-  await prisma.$transaction([
-    prisma.order.update({
-      where: { id: order.id },
-      data: { status: "pagado", mpPaymentId: pago.id },
-    }),
-    ...order.items.map((item) =>
-      prisma.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      }),
-    ),
-  ]);
-
-  console.log(`Pedido ${order.id} pagado (pago ${pago.id}). Stock descontado.`);
-
-  res.status(200).json({ ok: true });
+  res.status(200).json({
+    ok: true,
+    yaProcesado: resultado.estado === "ya-confirmado",
+  });
 }
 
 // Segun el topico, el id del pago puede venir en el cuerpo en vez de la query.

@@ -271,3 +271,42 @@ export async function obtenerPago(paymentId: string): Promise<PagoMercadoPago | 
     montoAprobado: datos.transaction_details?.total_paid_amount ?? null,
   };
 }
+
+/**
+ * Busca en Mercado Pago un pago aprobado para un pedido nuestro.
+ *
+ * Es el camino inverso al webhook: en vez de esperar a que nos avisen,
+ * preguntamos. Alcanza con el id de la Order porque se lo mandamos a Mercado
+ * Pago como external_reference al crear la preferencia.
+ *
+ * Devuelve null si no hay ningun pago aprobado todavia, que es el caso normal
+ * de un pedido que el cliente abandono.
+ */
+export async function buscarPagoAprobadoDePedido(
+  orderId: string,
+): Promise<PagoMercadoPago | null> {
+  const payment = new Payment(getCliente());
+
+  // El SDK no tipa los filtros de busqueda, de ahi el cast.
+  const respuesta = (await payment.search({
+    options: { external_reference: orderId },
+  } as never)) as { results?: unknown[] };
+
+  const resultados = (respuesta.results ?? []) as {
+    id?: number | string;
+    status?: string;
+    external_reference?: string;
+    transaction_details?: { total_paid_amount?: number };
+  }[];
+
+  const aprobado = resultados.find((p) => p.status === "approved");
+
+  if (!aprobado?.id) return null;
+
+  return {
+    id: String(aprobado.id),
+    status: "approved",
+    externalReference: aprobado.external_reference ?? null,
+    montoAprobado: aprobado.transaction_details?.total_paid_amount ?? null,
+  };
+}

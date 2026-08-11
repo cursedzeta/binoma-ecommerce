@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { validarPedido } from "../lib/validarPedido.js";
 import { crearPreferencia, estaConfigurado } from "../services/mercadopago.service.js";
+import { reconciliarPedido } from "../services/reconciliacion.service.js";
 
 // POST /api/orders
 //
@@ -149,4 +150,26 @@ export async function getOrderById(req: Request, res: Response) {
   }
 
   res.json(order);
+}
+
+// POST /api/orders/:id/reconciliar
+//
+// Le pregunta a Mercado Pago si este pedido ya esta pagado, sin esperar la
+// corrida periodica. Sirve para cuando un cliente reclama que pagó y su pedido
+// figura pendiente: se resuelve en el momento.
+//
+// No marca nada por su cuenta: si Mercado Pago no reporta un pago aprobado, el
+// pedido queda como estaba.
+export async function reconciliarOrder(req: Request, res: Response) {
+  if (!estaConfigurado()) {
+    return res.status(503).json({ error: "Mercado Pago no está configurado" });
+  }
+
+  const resultado = await reconciliarPedido(String(req.params.id));
+
+  if (resultado.estado === "sin-pedido") {
+    return res.status(404).json({ error: "Pedido no encontrado" });
+  }
+
+  res.json(resultado);
 }
