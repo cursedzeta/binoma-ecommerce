@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import ordersRoutes from "./routes/orders.routes.js";
 import productsRoutes from "./routes/products.routes.js";
+import retornoRoutes from "./routes/retorno.routes.js";
 import webhooksRoutes from "./routes/webhooks.routes.js";
 import { errorHandler, notFound } from "./middlewares/error.middleware.js";
 import { advertirSiElTokenEsDeProduccion } from "./services/mercadopago.service.js";
@@ -21,6 +22,12 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/products", productsRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/webhooks", webhooksRoutes);
+
+// Fuera de /api a proposito: son URLs de navegador, no de la API. Solo hacen
+// falta mientras PUBLIC_WEB_URL no apunte al frontend publico.
+if (!process.env.PUBLIC_WEB_URL) {
+  app.use("/compra", retornoRoutes);
+}
 
 app.use(notFound);
 app.use(errorHandler);

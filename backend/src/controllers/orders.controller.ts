@@ -88,7 +88,9 @@ export async function createOrder(req: Request, res: Response) {
     include: {
       items: {
         include: {
-          product: { select: { slug: true, name: true, images: true } },
+          product: {
+            select: { slug: true, name: true, images: true, description: true },
+          },
         },
       },
     },
@@ -104,10 +106,15 @@ export async function createOrder(req: Request, res: Response) {
   try {
     const { preferenceId, checkoutUrl } = await crearPreferencia({
       orderId: order.id,
-      comprador: { nombre: order.customerName, email: order.email },
+      comprador: {
+        nombre: order.customerName,
+        email: order.email,
+        telefono: order.phone,
+      },
       items: order.items.map((item) => ({
         id: item.productId,
         title: item.product.name,
+        description: item.product.description,
         quantity: item.quantity,
         unitPrice: item.price,
       })),

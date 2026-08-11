@@ -10,9 +10,14 @@ import {
 // Este servicio no sabe nada de Express: no recibe req ni devuelve res. Recibe
 // datos y devuelve datos, asi se puede probar sin levantar un servidor.
 
+// Cuantos mas datos del comprador y del producto reciba Mercado Pago, mejor
+// funciona su motor antifraude y mas pagos legitimos aprueba. Por eso mandamos
+// descripcion, categoria, apellido y telefono aunque no sean obligatorios.
+
 export type ItemPreferencia = {
   id: string;
   title: string;
+  description: string;
   quantity: number;
   /** Precio unitario en pesos enteros, tal como lo guardamos en la base. */
   unitPrice: number;
@@ -22,8 +27,25 @@ export type DatosPreferencia = {
   /** Id de nuestra Order. Viaja a MP como external_reference. */
   orderId: string;
   items: ItemPreferencia[];
-  comprador: { nombre: string; email: string };
+  comprador: { nombre: string; email: string; telefono?: string };
 };
+
+// Categoria de Mercado Pago para todo el catalogo de BINOMA: son muebles.
+const CATEGORIA_MP = "home";
+
+// La descripcion del item viaja al resumen del pago, no es el texto de venta.
+const MAX_DESCRIPCION = 250;
+
+// Nuestro formulario pide un solo campo de nombre, pero Mercado Pago evalua
+// nombre y apellido por separado. Partimos por el primer espacio: si el
+// comprador puso una sola palabra, el apellido queda vacio y se omite.
+function partirNombre(completo: string) {
+  const partes = completo.trim().split(/\s+/);
+  return {
+    nombre: partes[0] ?? "",
+    apellido: partes.slice(1).join(" "),
+  };
+}
 
 export type PreferenciaCreada = {
   preferenceId: string;
@@ -129,22 +151,38 @@ export async function crearPreferencia(
 ): Promise<PreferenciaCreada> {
   const preference = new Preference(getCliente());
 
-  const web = urlPublica(process.env.PUBLIC_WEB_URL);
   const api = urlPublica(process.env.PUBLIC_API_URL);
+
+  // A donde vuelve el comprador al terminar de pagar. En produccion es el
+  // dominio del frontend. En desarrollo, cuando no hay un segundo tunel de
+  // ngrok, se usa el del backend: ahi vive un puente que redirige a la tienda
+  // local (ver retorno.routes.ts).
+  const retorno = urlPublica(process.env.PUBLIC_WEB_URL) ?? api;
+
+  const { nombre, apellido } = partirNombre(datos.comprador.nombre);
 
   const respuesta = await preference.create({
     body: {
       items: datos.items.map((item) => ({
         id: item.id,
         title: item.title,
+        description: item.description.slice(0, MAX_DESCRIPCION),
+        category_id: CATEGORIA_MP,
         quantity: item.quantity,
         unit_price: item.unitPrice,
         currency_id: "ARS",
       })),
 
       payer: {
-        name: datos.comprador.nombre,
+        name: nombre,
+        ...(apellido && { surname: apellido }),
         email: datos.comprador.email,
+        // Mandamos el telefono tal como lo escribio el comprador. Partirlo en
+        // codigo de area y numero seria adivinar, y un dato mal partido es peor
+        // que uno sin partir.
+        ...(datos.comprador.telefono && {
+          phone: { number: datos.comprador.telefono },
+        }),
       },
 
       // El hilo que une el pago de Mercado Pago con nuestro pedido. Sin esto,
@@ -152,11 +190,11 @@ export async function crearPreferencia(
       external_reference: datos.orderId,
 
       // A donde vuelve el comprador. Es cosmetico: no confirma ningun pago.
-      ...(web && {
+      ...(retorno && {
         back_urls: {
-          success: `${web}/compra/exitosa`,
-          failure: `${web}/compra/fallida`,
-          pending: `${web}/compra/pendiente`,
+          success: `${retorno}/compra/exitosa`,
+          failure: `${retorno}/compra/fallida`,
+          pending: `${retorno}/compra/pendiente`,
         },
         auto_return: "approved",
       }),
