@@ -14,10 +14,14 @@ services:
     rootDir: backend
     region: oregon
 
+    # --include=dev es obligatorio: con NODE_ENV=production, npm omite las
+    # devDependencies, y ahí viven TypeScript y el CLI de Prisma, que el build
+    # necesita. Sin esa bandera el deploy falla con "tsc: not found".
+    #
     # migrate deploy aplica las migraciones pendientes sin pedir confirmación,
     # que es lo correcto en un deploy automático. Es distinto de migrate dev,
     # que es interactivo y solo para desarrollo.
-    buildCommand: npm ci && npx prisma migrate deploy && npm run build
+    buildCommand: npm ci --include=dev && npx prisma migrate deploy && npm run build
     startCommand: npm start
 
     # Render consulta esta ruta para saber si el servicio está sano. Elegimos

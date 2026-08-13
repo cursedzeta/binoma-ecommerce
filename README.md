@@ -61,10 +61,14 @@ Servicio web con **Root Directory** `backend`. Los comandos y las variables
 están en [backend/render.yaml](backend/render.yaml).
 
 ```
-Build:  npm ci && npx prisma migrate deploy && npm run build
+Build:  npm ci --include=dev && npx prisma migrate deploy && npm run build
 Start:  npm start
 Health: /api/health
 ```
+
+`--include=dev` no es opcional: con `NODE_ENV=production`, npm omite las
+devDependencies, y ahí viven TypeScript y el CLI de Prisma. Sin esa bandera el
+build falla con `tsc: not found`.
 
 Las variables con secretos se cargan a mano en el panel de Render.
 
