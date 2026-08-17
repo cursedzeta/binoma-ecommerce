@@ -1,5 +1,4 @@
 import CarruselProductos from "../components/CarruselProductos";
-import TilesCategorias from "../components/TilesCategorias";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
 
@@ -16,15 +15,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-
-      <Seccion
-        etiqueta="Explorá"
-        titulo="¿Qué estás buscando?"
-        descripcion="Cada pieza se hace en el taller, en fenólico de 18mm."
-      >
-        {products && <TilesCategorias products={products} />}
-        {loading && <EsqueletoTiles />}
-      </Seccion>
 
       <Seccion
         etiqueta="Destacados"
@@ -165,18 +155,6 @@ function Seccion({
   );
 }
 
-function EsqueletoTiles() {
-  return (
-    <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4" aria-hidden="true">
-      {Array.from({ length: 4 }, (_, i) => (
-        <div key={i}>
-          <div className="aspect-3/4 animate-pulse rounded-pieza bg-superficie-2" />
-          <div className="mt-3 h-5 w-24 animate-pulse rounded bg-superficie-2" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function EsqueletoTarjetas() {
   return (
