@@ -34,7 +34,7 @@ export default function Checkout() {
         <p className="mt-6 text-sm text-tenue">
           Número de pedido: <span className="text-tinta">{pedidoSinPago}</span>
         </p>
-        <BotonLink to="/" className="mt-8">
+        <BotonLink to="/catalogo" className="mt-8">
           Volver al catálogo
         </BotonLink>
       </Contenedor>
@@ -46,7 +46,7 @@ export default function Checkout() {
       <Contenedor ancho="angosto" className="py-20">
         <h1 className="text-titulo text-tinta">Finalizar compra</h1>
         <p className="mt-4 text-tenue">Tu carrito está vacío.</p>
-        <BotonLink to="/" className="mt-8">
+        <BotonLink to="/catalogo" className="mt-8">
           Ver el catálogo
         </BotonLink>
       </Contenedor>
@@ -121,7 +121,7 @@ export default function Checkout() {
         </ul>
         <div className="mt-4 flex justify-between border-t border-borde pt-4">
           <span className="text-tenue">Total</span>
-          <span className="font-display text-2xl text-tinta">{formatPrice(total)}</span>
+          <span className="text-2xl font-semibold text-tinta">{formatPrice(total)}</span>
         </div>
       </section>
 

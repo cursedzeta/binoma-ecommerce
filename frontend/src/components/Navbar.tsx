@@ -6,7 +6,10 @@ import { Contenedor } from "./ui";
 
 // Cuando exista la página Nosotros (sprint 6, con la cross-promoción de
 // Zeta3), se agrega acá y aparece sola en escritorio y en el menú mobile.
-const ENLACES = [{ to: "/", texto: "Catálogo" }];
+const ENLACES = [
+  { to: "/", texto: "Inicio" },
+  { to: "/catalogo", texto: "Catálogo" },
+];
 
 export default function Navbar() {
   const { totalItems } = useCart();
@@ -18,32 +21,29 @@ export default function Navbar() {
   useEffect(() => setAbierto(false), [pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-borde bg-fondo/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-borde bg-fondo/80 backdrop-blur-md">
       <Contenedor>
-        <nav className="flex h-16 items-center justify-between gap-4">
-          <Link
-            to="/"
-            className="font-display text-xl tracking-tight text-tinta"
-            aria-label="BINOMA, ir al inicio"
-          >
-            BINOMA
+        <nav className="flex h-16 items-center gap-6 sm:h-18">
+          <Link to="/" aria-label="BINOMA, ir al inicio" className="shrink-0">
+            <img
+              src="/binoma_logo.svg"
+              alt="BINOMA"
+              width={1073}
+              height={225}
+              className="h-5 w-auto sm:h-6"
+            />
           </Link>
 
           {/* Escritorio */}
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="ml-auto hidden items-center gap-7 md:flex">
             {ENLACES.map((e) => (
               <Enlace key={e.to} to={e.to}>
                 {e.texto}
               </Enlace>
             ))}
-            <div className="flex items-center gap-1">
-              <BotonTema />
-              <EnlaceCarrito total={totalItems} />
-            </div>
           </div>
 
-          {/* Mobile */}
-          <div className="flex items-center gap-1 md:hidden">
+          <div className="ml-auto flex items-center gap-1 md:ml-0">
             <BotonTema />
             <EnlaceCarrito total={totalItems} />
             <button
@@ -52,7 +52,7 @@ export default function Navbar() {
               aria-expanded={abierto}
               aria-controls="menu-mobile"
               aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-pieza text-tenue hover:bg-superficie-2 hover:text-tinta"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-pieza text-tenue transition hover:bg-superficie-2 hover:text-tinta md:hidden"
             >
               {abierto ? <IconoCerrar /> : <IconoMenu />}
             </button>
@@ -61,11 +61,11 @@ export default function Navbar() {
       </Contenedor>
 
       {abierto && (
-        <div id="menu-mobile" className="border-t border-borde md:hidden">
+        <div id="menu-mobile" className="border-t border-borde bg-fondo md:hidden">
           <Contenedor>
-            <div className="flex flex-col py-2">
+            <div className="flex flex-col divide-y divide-borde">
               {ENLACES.map((e) => (
-                <Enlace key={e.to} to={e.to} className="py-3">
+                <Enlace key={e.to} to={e.to} className="py-4">
                   {e.texto}
                 </Enlace>
               ))}
@@ -91,10 +91,24 @@ function Enlace({
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `text-sm transition ${isActive ? "text-tinta" : "text-tenue hover:text-tinta"} ${className}`
+        `relative text-sm transition ${
+          isActive ? "font-medium text-tinta" : "text-tenue hover:text-tinta"
+        } ${className}`
       }
     >
-      {children}
+      {({ isActive }) => (
+        <>
+          {children}
+          {/* Subrayado corto en naranja para la sección activa. Solo en
+              escritorio: en el menú desplegable el peso del texto ya alcanza. */}
+          {isActive && (
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-1.5 left-0 hidden h-0.5 w-full bg-marca md:block"
+            />
+          )}
+        </>
+      )}
     </NavLink>
   );
 }

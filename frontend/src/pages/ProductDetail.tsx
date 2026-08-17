@@ -17,7 +17,7 @@ export default function ProductDetail() {
     return (
       <Estado>
         {error ?? "No encontramos esta pieza"}
-        <Link to="/" className="mt-4 block text-marca-texto underline">
+        <Link to="/catalogo" className="mt-4 block text-marca-texto underline">
           Volver al catálogo
         </Link>
       </Estado>
@@ -30,7 +30,7 @@ export default function ProductDetail() {
 
   return (
     <Contenedor className="py-10 sm:py-16">
-      <Link to="/" className="text-sm text-tenue transition hover:text-tinta">
+      <Link to="/catalogo" className="text-sm text-tenue transition hover:text-tinta">
         ← Volver al catálogo
       </Link>
 
@@ -58,7 +58,7 @@ export default function ProductDetail() {
           <Etiqueta>{product.category}</Etiqueta>
           <h1 className="mt-2 text-titulo text-tinta">{product.name}</h1>
 
-          <p className="mt-5 font-display text-3xl text-tinta">
+          <p className="mt-5 text-3xl font-semibold text-tinta">
             {formatPrice(product.price)}
           </p>
 

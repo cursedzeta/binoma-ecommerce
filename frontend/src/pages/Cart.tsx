@@ -13,7 +13,7 @@ export default function Cart() {
       <Contenedor ancho="angosto" className="py-20">
         <h1 className="text-titulo text-tinta">Tu carrito</h1>
         <p className="mt-4 text-tenue">Todavía no agregaste piezas.</p>
-        <BotonLink to="/" className="mt-8">
+        <BotonLink to="/catalogo" className="mt-8">
           Ver el catálogo
         </BotonLink>
       </Contenedor>
@@ -124,7 +124,7 @@ export default function Cart() {
 
         <div className="ml-auto text-right">
           <Etiqueta>Total</Etiqueta>
-          <p className="font-display text-3xl text-tinta">{formatPrice(total)}</p>
+          <p className="text-3xl font-semibold text-tinta">{formatPrice(total)}</p>
           <BotonLink to="/checkout" className="mt-4">
             Finalizar compra
           </BotonLink>

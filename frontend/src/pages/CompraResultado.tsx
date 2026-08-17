@@ -43,7 +43,7 @@ export default function CompraResultado() {
     return (
       <Marco titulo="Página no encontrada">
         <p className="text-tenue">Ese enlace no corresponde a ninguna compra.</p>
-        <BotonLink to="/" className="mt-8">
+        <BotonLink to="/catalogo" className="mt-8">
           Ir al catálogo
         </BotonLink>
       </Marco>
@@ -60,7 +60,7 @@ export default function CompraResultado() {
         <DetallePedido order={order} loading={loading} error={error} />
         <div className="mt-8 flex flex-wrap gap-3">
           <BotonLink to="/carrito">Volver al carrito</BotonLink>
-          <BotonLink to="/" variante="secundario">
+          <BotonLink to="/catalogo" variante="secundario">
             Ver el catálogo
           </BotonLink>
         </div>
@@ -79,7 +79,7 @@ export default function CompraResultado() {
           Los pagos en efectivo pueden tardar hasta dos días hábiles en acreditarse.
         </p>
         <DetallePedido order={order} loading={loading} error={error} />
-        <BotonLink to="/" className="mt-8">
+        <BotonLink to="/catalogo" className="mt-8">
           Volver al catálogo
         </BotonLink>
       </Marco>
@@ -106,7 +106,7 @@ export default function CompraResultado() {
 
       <DetallePedido order={order} loading={loading} error={error} />
 
-      <BotonLink to="/" className="mt-8">
+      <BotonLink to="/catalogo" className="mt-8">
         Seguir comprando
       </BotonLink>
     </Marco>
@@ -164,7 +164,7 @@ function DetallePedido({
 
       <div className="mt-4 flex justify-between border-t border-borde pt-4">
         <span className="text-tenue">Total</span>
-        <span className="font-display text-2xl text-tinta">{formatPrice(order.total)}</span>
+        <span className="text-2xl font-semibold text-tinta">{formatPrice(order.total)}</span>
       </div>
     </section>
   );

@@ -18,14 +18,12 @@
 
 @theme {
   /* --- Tipografía ---------------------------------------------------------
-     Fraunces para títulos: es una serif de contraste suave, con calidez, que
-     acompaña la madera y el fenólico sin ponerse solemne.
-     Manrope para el resto: geométrica y silenciosa, para que el carácter lo
-     ponga el título y no compitan entre sí.
-     Las dos se sirven desde nuestro dominio (@fontsource), no desde Google:
-     sin request a terceros y sin parpadeo al cargar. */
+     Una sola familia para todo: Manrope. La jerarquía la dan el peso, el
+     tamaño y el espaciado, no el contraste entre dos tipografías. Es lo que
+     hace que una marca se lea contemporánea en vez de clásica.
+     Se sirve desde nuestro dominio (@fontsource), no desde Google: sin
+     request a terceros y sin parpadeo al cargar. */
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  --font-display: "Fraunces Variable", ui-serif, Georgia, "Times New Roman", serif;
 
   /* --- Escala tipográfica -------------------------------------------------
      Los tamaños de display usan clamp() para escalar con el ancho: en mobile
@@ -121,12 +119,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Los títulos van en la serif por defecto, para no repetir font-display en
-   cada pantalla y que ninguna se olvide. */
+/* Con una sola familia, la jerarquía la lleva el peso. Los títulos van
+   semibold y con el tracking cerrado: a tamaño grande, el espaciado normal se
+   ve suelto. */
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 

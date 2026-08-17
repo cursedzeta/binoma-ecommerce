@@ -1,74 +1,47 @@
-import { useMemo, useState } from "react";
-import ProductCard from "../components/ProductCard";
-import { BotonAncla, Contenedor, Etiqueta } from "../components/ui";
+import CarruselProductos from "../components/CarruselProductos";
+import { BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
 
 export default function Home() {
-  const [categoria, setCategoria] = useState<string | undefined>(undefined);
+  const { data: products, loading, error } = useProducts();
 
-  // Traemos el catálogo entero una sola vez y filtramos en el navegador. Las
-  // categorías salen de los productos que existen, así una categoría nueva
-  // cargada desde el panel aparece sola en los filtros.
-  const { data: todos, loading, error } = useProducts();
-
-  const categorias = useMemo(
-    () => [...new Set((todos ?? []).map((p) => p.category))].sort(),
-    [todos],
-  );
-
-  const products = useMemo(
-    () => (categoria ? (todos ?? []).filter((p) => p.category === categoria) : todos),
-    [todos, categoria],
-  );
+  // En el carrusel van primero los que se pueden comprar: mostrar arriba de
+  // todo una pieza sin stock sería empezar por una decepción.
+  const destacados = (products ?? [])
+    .slice()
+    .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0))
+    .slice(0, 8);
 
   return (
     <>
       <Hero />
 
-      <section id="catalogo" className="scroll-mt-20 pb-24">
+      <section className="py-16 sm:py-24">
         <Contenedor>
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-borde pb-5">
-            <div>
-              <Etiqueta>Catálogo</Etiqueta>
-              <h2 className="mt-1 text-titulo text-tinta">Piezas disponibles</h2>
-            </div>
+          <BannerProductos />
 
-            {categorias.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                <Filtro activo={!categoria} onClick={() => setCategoria(undefined)}>
-                  Todo
-                </Filtro>
-                {categorias.map((c) => (
-                  <Filtro key={c} activo={categoria === c} onClick={() => setCategoria(c)}>
-                    {c}
-                  </Filtro>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8">
+          <div className="mt-10">
             {loading && <Esqueleto />}
 
             {error && (
               <p className="rounded-pieza border border-borde bg-superficie p-5 text-tenue">
-                No pudimos cargar el catálogo: {error}
+                No pudimos cargar los productos: {error}
               </p>
             )}
 
-            {products && products.length === 0 && (
+            {products && destacados.length === 0 && (
               <p className="py-12 text-center text-tenue">
-                No hay piezas en esta categoría.
+                Todavía no hay piezas cargadas.
               </p>
             )}
 
-            {products && products.length > 0 && (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
-            )}
+            {destacados.length > 0 && <CarruselProductos products={destacados} />}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <BotonLink to="/catalogo" variante="secundario">
+              Ver todo el catálogo
+            </BotonLink>
           </div>
         </Contenedor>
       </section>
@@ -106,7 +79,7 @@ function Hero() {
           </p>
 
           <div className="mt-10">
-            <BotonAncla href="#catalogo">Ver el catálogo</BotonAncla>
+            <BotonLink to="/catalogo">Ver el catálogo</BotonLink>
           </div>
         </div>
       </Contenedor>
@@ -114,37 +87,37 @@ function Hero() {
   );
 }
 
-function Filtro({
-  activo,
-  onClick,
-  children,
-}: {
-  activo: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
+/**
+ * Banner del bloque de productos.
+ *
+ * Por ahora es tipográfico sobre un fondo cálido. Cuando llegue la foto, se
+ * reemplaza el degradado por la imagen y el texto queda encima: la estructura
+ * ya está lista para eso.
+ */
+function BannerProductos() {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={activo}
-      className={`rounded-pieza border px-3.5 py-1.5 text-sm capitalize transition ${
-        activo
-          ? "border-marca bg-marca-suave text-marca-texto"
-          : "border-borde text-tenue hover:border-tenue hover:text-tinta"
-      }`}
-    >
-      {children}
-    </button>
+    <div className="relative overflow-hidden rounded-pieza border border-borde bg-superficie-2">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-br from-marca/10 via-transparent to-transparent"
+      />
+      <div className="relative flex flex-col gap-2 px-6 py-10 sm:px-10 sm:py-14">
+        <Etiqueta>Destacados</Etiqueta>
+        <h2 className="text-titulo text-tinta">Productos</h2>
+        <p className="max-w-md text-tenue">
+          Una selección de lo que hay disponible ahora mismo.
+        </p>
+      </div>
+    </div>
   );
 }
 
-/** Bloques grises del tamaño de las tarjetas: evita que la página salte cuando
-    llegan los productos. */
+/** Dos bloques del tamaño de las tarjetas: evita que la página salte cuando
+    llegan los datos. */
 function Esqueleto() {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
-      {Array.from({ length: 6 }, (_, i) => (
+    <div className="grid gap-5 sm:grid-cols-2" aria-hidden="true">
+      {Array.from({ length: 2 }, (_, i) => (
         <div key={i} className="rounded-pieza border border-borde bg-superficie">
           <div className="aspect-4/3 animate-pulse bg-superficie-2" />
           <div className="space-y-2 p-4">

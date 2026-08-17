@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Cart from "./pages/Cart";
+import Catalogo from "./pages/Catalogo";
 import Checkout from "./pages/Checkout";
 import CompraResultado from "./pages/CompraResultado";
 import Home from "./pages/Home";
@@ -35,6 +36,7 @@ function App() {
             <Routes>
               <Route element={<TiendaLayout />}>
                 <Route path="/" element={<Home />} />
+                <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/producto/:slug" element={<ProductDetail />} />
                 <Route path="/carrito" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
