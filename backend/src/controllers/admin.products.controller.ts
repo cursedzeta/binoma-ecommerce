@@ -7,8 +7,12 @@ import { generarSlug, validarProducto } from "../lib/validarProducto.js";
 // A diferencia del catalogo publico, aca se devuelven los productos completos,
 // incluidos los que estan sin stock: el dueño necesita verlos para reponerlos.
 
+// Un pedido cancelado no es una venta: no tiene por que trabar el catalogo.
+// Los pendientes SI cuentan, porque todavia pueden pagarse.
+const PEDIDOS_VIGENTES = { order: { status: { not: "cancelado" } } } as const;
+
 const conConteoDePedidos = {
-  _count: { select: { orderItems: true } },
+  _count: { select: { orderItems: { where: PEDIDOS_VIGENTES } } },
 } as const;
 
 // GET /api/admin/products
@@ -95,17 +99,26 @@ export async function borrarProducto(req: Request, res: Response) {
     return res.status(404).json({ error: "Producto no encontrado" });
   }
 
-  // Un producto que aparece en pedidos no se borra: los OrderItem lo referencian
-  // y borrarlo dejaria pedidos sin poder mostrar que se vendio. Para sacarlo de
-  // la tienda alcanza con dejarlo en stock 0.
+  // Un producto que aparece en pedidos vigentes no se borra: esos pedidos
+  // quedarian sin poder mostrar que se vendio. Para sacarlo de la tienda
+  // alcanza con dejarlo en stock 0.
+  //
+  // Los cancelados no cuentan: no son ventas, y dejarlos trabar el catalogo
+  // significaria que un pedido de prueba te clava un producto para siempre.
   if (producto._count.orderItems > 0) {
     return res.status(409).json({
       error:
-        "Este producto aparece en pedidos y no se puede borrar. Poné su stock en 0 para sacarlo de la tienda.",
+        "Este producto aparece en pedidos vigentes y no se puede borrar. Poné su stock en 0 para sacarlo de la tienda, o cancelá esos pedidos.",
     });
   }
 
-  await prisma.product.delete({ where: { id: producto.id } });
+  // Las lineas de los pedidos cancelados apuntan al producto, y la base bloquea
+  // el borrado mientras existan. Se van con el producto, en una sola operacion:
+  // si algo falla, no queda ni el producto a medio borrar ni lineas huerfanas.
+  await prisma.$transaction([
+    prisma.orderItem.deleteMany({ where: { productId: producto.id } }),
+    prisma.product.delete({ where: { id: producto.id } }),
+  ]);
 
   res.status(204).end();
 }

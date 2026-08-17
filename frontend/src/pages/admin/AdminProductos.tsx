@@ -192,7 +192,7 @@ export default function AdminProductos() {
                 {p._count.orderItems > 0 ? (
                   <span
                     className="text-neutral-400"
-                    title="Aparece en pedidos: poné su stock en 0 para sacarlo de la tienda"
+                    title="Aparece en pedidos vigentes: poné su stock en 0 para sacarlo de la tienda, o cancelá esos pedidos"
                   >
                     En {p._count.orderItems}{" "}
                     {p._count.orderItems === 1 ? "pedido" : "pedidos"}
