@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Boton, BotonLink, Campo, Contenedor, Etiqueta, entrada } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../hooks/useProducts";
 import { formatPrice } from "../lib/format";
@@ -24,40 +25,36 @@ export default function Checkout() {
 
   if (pedidoSinPago) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-2xl text-neutral-900">Pedido registrado</h1>
-        <p className="mt-4 text-neutral-700">
+      <Contenedor ancho="angosto" className="py-20">
+        <h1 className="text-titulo text-tinta">Pedido registrado</h1>
+        <p className="mt-4 text-tenue">
           Guardamos tu pedido, pero el cobro online no está disponible en este
           momento. Nos vamos a contactar para coordinar el pago.
         </p>
-        <p className="mt-4 text-sm text-neutral-500">
-          Número de pedido: <span className="text-neutral-900">{pedidoSinPago}</span>
+        <p className="mt-6 text-sm text-tenue">
+          Número de pedido: <span className="text-tinta">{pedidoSinPago}</span>
         </p>
-        <Link to="/" className="mt-6 inline-block underline">
+        <BotonLink to="/" className="mt-8">
           Volver al catálogo
-        </Link>
-      </main>
+        </BotonLink>
+      </Contenedor>
     );
   }
 
   if (items.length === 0) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-2xl text-neutral-900">Checkout</h1>
-        <p className="mt-4 text-neutral-600">Tu carrito está vacío.</p>
-        <Link to="/" className="mt-4 inline-block underline">
+      <Contenedor ancho="angosto" className="py-20">
+        <h1 className="text-titulo text-tinta">Finalizar compra</h1>
+        <p className="mt-4 text-tenue">Tu carrito está vacío.</p>
+        <BotonLink to="/" className="mt-8">
           Ver el catálogo
-        </Link>
-      </main>
+        </BotonLink>
+      </Contenedor>
     );
   }
 
   if (loading || !products) {
-    return (
-      <main className="mx-auto max-w-3xl px-6 py-12 text-neutral-600">
-        Cargando...
-      </main>
-    );
+    return <Contenedor ancho="angosto" className="py-20 text-tenue">Cargando...</Contenedor>;
   }
 
   // El total que se muestra acá es solo informativo: el que vale es el que
@@ -83,13 +80,11 @@ export default function Checkout() {
 
       if (checkoutUrl) {
         // El carrito NO se vacía acá: el pago todavía puede fallar o cancelarse.
-        // Se vacía cuando Mercado Pago confirma (paso 4).
+        // Se vacía cuando Mercado Pago confirma.
         window.location.href = checkoutUrl;
         return;
       }
 
-      // El backend no tiene credenciales de Mercado Pago configuradas. El
-      // pedido quedó guardado igual, así que mostramos su número.
       setPedidoSinPago(order.id);
       setEnviando(false);
     } catch (err) {
@@ -103,66 +98,73 @@ export default function Checkout() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link to="/carrito" className="text-sm text-neutral-600 underline">
-        Volver al carrito
+    <Contenedor ancho="angosto" className="py-10 sm:py-16">
+      <Link to="/carrito" className="text-sm text-tenue transition hover:text-tinta">
+        ← Volver al carrito
       </Link>
 
-      <h1 className="mt-6 text-2xl text-neutral-900">Finalizar compra</h1>
+      <h1 className="mt-6 text-titulo text-tinta">Finalizar compra</h1>
 
-      <section className="mt-8 border-y border-neutral-300 py-4">
-        <h2 className="text-sm uppercase tracking-wide text-neutral-500">Tu pedido</h2>
-        <ul className="mt-3 space-y-1">
+      <section className="mt-8 rounded-pieza border border-borde bg-superficie p-5">
+        <Etiqueta>Tu pedido</Etiqueta>
+        <ul className="mt-3 flex flex-col gap-1.5">
           {lineas.map(({ item, product }) => (
-            <li key={product.id} className="flex justify-between text-sm">
-              <span className="text-neutral-700">
+            <li key={product.id} className="flex justify-between gap-4 text-sm">
+              <span className="text-tenue">
                 {product.name} × {item.quantity}
               </span>
-              <span className="text-neutral-900">
+              <span className="shrink-0 text-tinta tabular-nums">
                 {formatPrice(product.price * item.quantity)}
               </span>
             </li>
           ))}
         </ul>
-        <div className="mt-3 flex justify-between border-t border-neutral-300 pt-3">
-          <span className="text-neutral-700">Total</span>
-          <span className="text-lg text-neutral-900">{formatPrice(total)}</span>
+        <div className="mt-4 flex justify-between border-t border-borde pt-4">
+          <span className="text-tenue">Total</span>
+          <span className="font-display text-2xl text-tinta">{formatPrice(total)}</span>
         </div>
       </section>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-5">
-        <Campo
-          id="customerName"
-          label="Nombre y apellido"
-          value={form.customerName}
-          onChange={(v) => setForm({ ...form, customerName: v })}
-          autoComplete="name"
-        />
+      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5">
+        <Campo label="Nombre y apellido">
+          <input
+            name="customerName"
+            value={form.customerName}
+            onChange={(e) => setForm({ ...form, customerName: e.target.value })}
+            autoComplete="name"
+            required
+            className={entrada}
+          />
+        </Campo>
 
-        <Campo
-          id="email"
-          label="Email"
-          type="email"
-          value={form.email}
-          onChange={(v) => setForm({ ...form, email: v })}
-          autoComplete="email"
-          ayuda="Te enviamos ahí la confirmación de la compra."
-        />
+        <Campo label="Email" ayuda="Te enviamos ahí la confirmación de la compra.">
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            autoComplete="email"
+            required
+            className={entrada}
+          />
+        </Campo>
 
-        <Campo
-          id="phone"
-          label="Teléfono"
-          type="tel"
-          value={form.phone}
-          onChange={(v) => setForm({ ...form, phone: v })}
-          autoComplete="tel"
-          ayuda="Para coordinar la entrega."
-        />
+        <Campo label="Teléfono" ayuda="Para coordinar la entrega.">
+          <input
+            name="phone"
+            type="tel"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            autoComplete="tel"
+            required
+            className={entrada}
+          />
+        </Campo>
 
         {errores.length > 0 && (
-          <div role="alert" className="border border-neutral-500 p-4">
-            <p className="text-sm text-neutral-900">No se pudo continuar:</p>
-            <ul className="mt-2 list-inside list-disc text-sm text-neutral-700">
+          <div role="alert" className="rounded-pieza border border-borde bg-superficie p-4">
+            <p className="text-sm text-tinta">No se pudo continuar:</p>
+            <ul className="mt-2 list-inside list-disc text-sm text-tenue">
               {errores.map((e) => (
                 <li key={e}>{e}</li>
               ))}
@@ -170,56 +172,15 @@ export default function Checkout() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={enviando}
-          className="w-full border border-neutral-900 px-6 py-3 text-neutral-900 disabled:border-neutral-300 disabled:text-neutral-400"
-        >
+        <Boton type="submit" disabled={enviando} className="w-full">
           {enviando ? "Redirigiendo a Mercado Pago..." : "Pagar con Mercado Pago"}
-        </button>
+        </Boton>
 
-        <p className="text-center text-xs text-neutral-500">
+        <p className="text-center text-xs text-tenue">
           Vas a completar el pago en el sitio de Mercado Pago. No guardamos datos de
           tu tarjeta.
         </p>
       </form>
-    </main>
-  );
-}
-
-function Campo({
-  id,
-  label,
-  value,
-  onChange,
-  type = "text",
-  autoComplete,
-  ayuda,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (valor: string) => void;
-  type?: string;
-  autoComplete?: string;
-  ayuda?: string;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm text-neutral-700">
-        {label}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        autoComplete={autoComplete}
-        required
-        className="mt-1 w-full border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-neutral-900 focus:outline-none"
-      />
-      {ayuda && <p className="mt-1 text-xs text-neutral-500">{ayuda}</p>}
-    </div>
+    </Contenedor>
   );
 }

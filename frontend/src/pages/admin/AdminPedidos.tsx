@@ -91,14 +91,14 @@ export default function AdminPedidos() {
     <div>
       <section className="flex flex-wrap gap-4">
         {resumen.map((r) => (
-          <div key={r.status} className="border border-neutral-300 px-4 py-3">
-            <p className="text-xs uppercase tracking-wide text-neutral-500">
+          <div key={r.status} className="border border-borde px-4 py-3">
+            <p className="text-xs uppercase tracking-wide text-tenue">
               {ETIQUETAS[r.status] ?? r.status}
             </p>
-            <p className="mt-1 text-neutral-900">
+            <p className="mt-1 text-tinta">
               {r.cantidad} {r.cantidad === 1 ? "pedido" : "pedidos"}
             </p>
-            <p className="text-sm text-neutral-600">{formatPrice(r.total)}</p>
+            <p className="text-sm text-tenue">{formatPrice(r.total)}</p>
           </div>
         ))}
       </section>
@@ -115,54 +115,54 @@ export default function AdminPedidos() {
       </div>
 
       {aviso && (
-        <p role="status" className="mt-6 border border-neutral-400 p-3 text-sm text-neutral-800">
+        <p role="status" className="mt-6 border border-borde p-3 text-sm text-tinta">
           {aviso}
         </p>
       )}
 
       {error && (
-        <p role="alert" className="mt-6 border border-neutral-500 p-3 text-sm text-neutral-900">
+        <p role="alert" className="mt-6 border border-borde p-3 text-sm text-tinta">
           {error}
         </p>
       )}
 
-      {cargando && <p className="mt-8 text-neutral-500">Cargando pedidos...</p>}
+      {cargando && <p className="mt-8 text-tenue">Cargando pedidos...</p>}
 
       {!cargando && pedidos.length === 0 && (
-        <p className="mt-8 text-neutral-500">No hay pedidos en esta vista.</p>
+        <p className="mt-8 text-tenue">No hay pedidos en esta vista.</p>
       )}
 
-      <ul className="mt-8 divide-y divide-neutral-300 border-y border-neutral-300">
+      <ul className="mt-8 divide-y divide-borde border-y border-borde">
         {pedidos.map((pedido) => (
           <li key={pedido.id} className="py-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-neutral-900">{pedido.customerName}</p>
-                <p className="text-sm text-neutral-600">
+                <p className="text-tinta">{pedido.customerName}</p>
+                <p className="text-sm text-tenue">
                   {pedido.email} · {pedido.phone}
                 </p>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-xs text-tenue">
                   {new Date(pedido.createdAt).toLocaleString("es-AR")} · {pedido.id.slice(0, 8)}
                 </p>
               </div>
 
               <div className="text-right">
-                <span className="border border-neutral-400 px-2 py-0.5 text-xs uppercase tracking-wide text-neutral-700">
+                <span className="border border-borde px-2 py-0.5 text-xs uppercase tracking-wide text-tenue">
                   {ETIQUETAS[pedido.status] ?? pedido.status}
                 </span>
-                <p className="mt-2 text-lg text-neutral-900">{formatPrice(pedido.total)}</p>
+                <p className="mt-2 text-lg text-tinta">{formatPrice(pedido.total)}</p>
               </div>
             </div>
 
             <ul className="mt-3 space-y-0.5">
               {pedido.items.map((item) => (
-                <li key={item.id} className="text-sm text-neutral-700">
+                <li key={item.id} className="text-sm text-tenue">
                   {item.quantity} × {item.product.name} — {formatPrice(item.price)} c/u
                 </li>
               ))}
             </ul>
 
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-tenue">
               {pedido.mpPaymentId
                 ? `Pago verificado: ${pedido.mpPaymentId}`
                 : "Sin pago confirmado por Mercado Pago"}
@@ -226,8 +226,8 @@ function Filtro({
       onClick={onClick}
       className={`border px-3 py-1 text-sm ${
         activo
-          ? "border-neutral-900 text-neutral-900"
-          : "border-neutral-300 text-neutral-600 hover:border-neutral-500"
+          ? "border-tinta text-tinta"
+          : "border-borde text-tenue hover:border-borde"
       }`}
     >
       {children}
@@ -248,7 +248,7 @@ function Accion({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="border border-neutral-900 px-3 py-1.5 text-sm text-neutral-900 disabled:border-neutral-300 disabled:text-neutral-400"
+      className="border border-tinta px-3 py-1.5 text-sm text-tinta disabled:border-borde disabled:text-tenue"
     >
       {children}
     </button>

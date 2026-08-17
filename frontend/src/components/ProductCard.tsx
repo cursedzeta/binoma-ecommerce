@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
 import { formatPrice } from "../lib/format";
+import { Etiqueta } from "./ui";
 
 export default function ProductCard({ product }: { product: Product }) {
   const sinStock = product.stock === 0;
@@ -8,28 +9,28 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       to={`/producto/${product.slug}`}
-      className="group block border border-neutral-300 hover:border-neutral-900"
+      className="group flex flex-col rounded-pieza border border-borde bg-superficie transition hover:border-marca"
     >
-      <div className="aspect-4/3 overflow-hidden bg-neutral-100">
+      <div className="relative aspect-4/3 overflow-hidden bg-superficie-2">
         {product.images[0] && (
           <img
             src={product.images[0]}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
           />
+        )}
+        {sinStock && (
+          <span className="absolute left-3 top-3 rounded-pieza bg-fondo/95 px-2 py-1 text-xs text-tenue">
+            Sin stock
+          </span>
         )}
       </div>
 
-      <div className="space-y-1 p-4">
-        <p className="text-xs uppercase tracking-wide text-neutral-500">
-          {product.category}
-        </p>
-        <h2 className="text-base text-neutral-900">{product.name}</h2>
-        <p className="text-sm text-neutral-700">{formatPrice(product.price)}</p>
-        {sinStock && (
-          <p className="text-xs uppercase tracking-wide text-neutral-500">Sin stock</p>
-        )}
+      <div className="flex flex-1 flex-col gap-1 p-4">
+        <Etiqueta>{product.category}</Etiqueta>
+        <h3 className="text-subtitulo leading-snug text-tinta">{product.name}</h3>
+        <p className="mt-auto pt-2 text-tinta">{formatPrice(product.price)}</p>
       </div>
     </Link>
   );

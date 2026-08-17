@@ -1,4 +1,147 @@
 @import "tailwindcss";
 
-/* Wireframe: sin identidad visual todavia. Grises neutros y tipografia del
-   sistema. La estetica premium de BINOMA se define mas adelante. */
+/* ==========================================================================
+   Sistema de diseño de BINOMA — fuente única de verdad
+   ==========================================================================
+
+   Tailwind v4 se configura acá, en el CSS, no en un tailwind.config.js.
+   Cada token de @theme genera sus utilidades solo: --color-marca habilita
+   bg-marca, text-marca, border-marca, etc.
+
+   Regla para todo el proyecto: NINGÚN componente escribe un color suelto.
+   Si algo necesita un color que no está acá, se agrega acá primero.
+   ========================================================================== */
+
+/* El modo oscuro se activa con la clase .dark en el <html>, que pone y saca
+   el ThemeContext. Tailwind v4 no tiene darkMode:'class': se declara así. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* --- Tipografía ---------------------------------------------------------
+     Fraunces para títulos: es una serif de contraste suave, con calidez, que
+     acompaña la madera y el fenólico sin ponerse solemne.
+     Manrope para el resto: geométrica y silenciosa, para que el carácter lo
+     ponga el título y no compitan entre sí.
+     Las dos se sirven desde nuestro dominio (@fontsource), no desde Google:
+     sin request a terceros y sin parpadeo al cargar. */
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, "Times New Roman", serif;
+
+  /* --- Escala tipográfica -------------------------------------------------
+     Los tamaños de display usan clamp() para escalar con el ancho: en mobile
+     entran sin romper la jerarquía, en desktop respiran. */
+  --text-display: clamp(2.25rem, 1.6rem + 3vw, 4rem);
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+
+  --text-titulo: clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem);
+  --text-titulo--line-height: 1.15;
+  --text-titulo--letter-spacing: -0.015em;
+
+  --text-subtitulo: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --text-subtitulo--line-height: 1.3;
+
+  /* --- Color: modo claro --------------------------------------------------
+     El fondo es hueso cálido, no blanco puro: el blanco puro con el naranja
+     de marca da un contraste duro, de aviso más que de mueble. */
+  --color-fondo: #faf7f2;
+  --color-superficie: #fffdfa;
+  --color-superficie-2: #f2ece3;
+
+  --color-tinta: #1c1917;
+  --color-tenue: #6b6259;
+  --color-borde: #e7dfd4;
+
+  /* El naranja de marca. OJO con cómo se usa:
+       - de fondo (botones, badges): sí, con texto oscuro encima
+       - como texto sobre el fondo claro: NO, no llega a contraste AA
+     Para texto sobre claro está --color-marca-texto, que es el mismo naranja
+     oscurecido hasta pasar AA. */
+  --color-marca: #ff7f00;
+  --color-marca-texto: #c25e00;
+  --color-marca-suave: #fff0de;
+
+  /* El texto que va ENCIMA del naranja. Es oscuro en los dos modos, porque el
+     naranja no cambia de claridad: blanco sobre #ff7f00 da 2,3:1 y no llega a
+     AA, así que se vuelve ilegible al sol, que es donde más se mira un
+     teléfono. */
+  --color-sobre-marca: #1c1917;
+
+  /* Estados. Separados de la marca a propósito: el naranja significa "BINOMA",
+     no "atención". Si los mezcláramos, un aviso de error competiría con un
+     botón de comprar. */
+  --color-exito: #2f6f4e;
+  --color-alerta: #8a5a12;
+  --color-alerta-suave: #fdf3e2;
+
+  /* --- Otros -------------------------------------------------------------- */
+  --radius-pieza: 2px;
+}
+
+/* --- Color: modo oscuro ---------------------------------------------------
+   Redefinir los mismos tokens alcanza: las utilidades de Tailwind apuntan a
+   estas variables, así que todo el sitio cambia sin tocar un solo componente.
+
+   El fondo es un marrón muy oscuro, no negro puro: el negro absoluto sobre
+   pantallas OLED genera un contraste que cansa, y acá además enfriaría una
+   marca que es de madera. */
+.dark {
+  --color-fondo: #16130f;
+  --color-superficie: #201b16;
+  --color-superficie-2: #2a231c;
+
+  --color-tinta: #f2ede6;
+  --color-tenue: #a99d8e;
+  --color-borde: #342c23;
+
+  /* Sobre fondo oscuro el naranja rinde distinto: se aclara apenas para
+     mantenerse vivo, y como texto ya pasa AA sin necesidad de oscurecerlo. */
+  --color-marca: #ff8a17;
+  --color-marca-texto: #ff9b3d;
+  --color-marca-suave: #2b1d0d;
+
+  --color-exito: #6fbf90;
+  --color-alerta: #e0ab53;
+  --color-alerta-suave: #2a2213;
+}
+
+/* --- Base ---------------------------------------------------------------- */
+
+html {
+  /* Sin esto, el cambio de tema hace saltar la página cuando aparece o
+     desaparece la barra de scroll. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: var(--color-fondo);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Los títulos van en la serif por defecto, para no repetir font-display en
+   cada pantalla y que ninguna se olvide. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* El foco visible es accesibilidad, no decoración: quien navega con teclado
+   necesita saber dónde está parado. */
+:focus-visible {
+  outline: 2px solid var(--color-marca);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

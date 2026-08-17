@@ -118,26 +118,26 @@ export default function AdminProductos() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-tenue">
           {productos.length} {productos.length === 1 ? "producto" : "productos"} en el
           catálogo
         </p>
         <button
           onClick={abrirNuevo}
-          className="border border-neutral-900 px-4 py-2 text-sm text-neutral-900"
+          className="border border-tinta px-4 py-2 text-sm text-tinta"
         >
           Nuevo producto
         </button>
       </div>
 
       {aviso && (
-        <p role="status" className="mt-6 border border-neutral-400 p-3 text-sm text-neutral-800">
+        <p role="status" className="mt-6 border border-borde p-3 text-sm text-tinta">
           {aviso}
         </p>
       )}
 
       {error && (
-        <p role="alert" className="mt-6 border border-neutral-500 p-3 text-sm text-neutral-900">
+        <p role="alert" className="mt-6 border border-borde p-3 text-sm text-tinta">
           {error}
         </p>
       )}
@@ -155,13 +155,13 @@ export default function AdminProductos() {
         />
       )}
 
-      {cargando && <p className="mt-8 text-neutral-500">Cargando productos...</p>}
+      {cargando && <p className="mt-8 text-tenue">Cargando productos...</p>}
 
       {!cargando && productos.length > 0 && (
-        <ul className="mt-8 divide-y divide-neutral-300 border-y border-neutral-300">
+        <ul className="mt-8 divide-y divide-borde border-y border-borde">
           {productos.map((p) => (
             <li key={p.id} className="flex flex-wrap items-start gap-4 py-4">
-              <div className="h-16 w-20 shrink-0 overflow-hidden bg-neutral-100">
+              <div className="h-16 w-20 shrink-0 overflow-hidden bg-superficie-2">
                 {p.images[0] && (
                   <img
                     src={p.images[0]}
@@ -173,32 +173,32 @@ export default function AdminProductos() {
               </div>
 
               <div className="min-w-48 flex-1">
-                <p className="text-neutral-900">{p.name}</p>
-                <p className="text-sm text-neutral-600">
+                <p className="text-tinta">{p.name}</p>
+                <p className="text-sm text-tenue">
                   {formatPrice(p.price)} · {p.category} ·{" "}
                   {p.stock === 0 ? (
-                    <span className="text-neutral-900">sin stock</span>
+                    <span className="text-tinta">sin stock</span>
                   ) : (
                     `${p.stock} en stock`
                   )}
                 </p>
-                <p className="mt-0.5 text-xs text-neutral-500">/producto/{p.slug}</p>
+                <p className="mt-0.5 text-xs text-tenue">/producto/{p.slug}</p>
               </div>
 
               <div className="flex items-center gap-3 text-sm">
-                <button onClick={() => abrirEdicion(p)} className="underline text-neutral-700">
+                <button onClick={() => abrirEdicion(p)} className="underline text-tenue">
                   Editar
                 </button>
                 {p._count.orderItems > 0 ? (
                   <span
-                    className="text-neutral-400"
+                    className="text-tenue"
                     title="Aparece en pedidos vigentes: poné su stock en 0 para sacarlo de la tienda, o cancelá esos pedidos"
                   >
                     En {p._count.orderItems}{" "}
                     {p._count.orderItems === 1 ? "pedido" : "pedidos"}
                   </span>
                 ) : (
-                  <button onClick={() => onBorrar(p)} className="underline text-neutral-700">
+                  <button onClick={() => onBorrar(p)} className="underline text-tenue">
                     Borrar
                   </button>
                 )}
@@ -231,8 +231,8 @@ function Formulario({
   onCancelar: () => void;
 }) {
   return (
-    <form onSubmit={onSubmit} className="mt-6 border border-neutral-400 p-5">
-      <h2 className="text-lg text-neutral-900">
+    <form onSubmit={onSubmit} className="mt-6 border border-borde p-5">
+      <h2 className="text-lg text-tinta">
         {esNuevo ? "Nuevo producto" : "Editar producto"}
       </h2>
 
@@ -319,9 +319,9 @@ function Formulario({
       </div>
 
       {errores.length > 0 && (
-        <div role="alert" className="mt-5 border border-neutral-500 p-3">
-          <p className="text-sm text-neutral-900">No se pudo guardar:</p>
-          <ul className="mt-1 list-inside list-disc text-sm text-neutral-700">
+        <div role="alert" className="mt-5 border border-borde p-3">
+          <p className="text-sm text-tinta">No se pudo guardar:</p>
+          <ul className="mt-1 list-inside list-disc text-sm text-tenue">
             {errores.map((e) => (
               <li key={e}>{e}</li>
             ))}
@@ -333,11 +333,11 @@ function Formulario({
         <button
           type="submit"
           disabled={guardando}
-          className="border border-neutral-900 px-5 py-2 text-neutral-900 disabled:border-neutral-300 disabled:text-neutral-400"
+          className="border border-tinta px-5 py-2 text-tinta disabled:border-borde disabled:text-tenue"
         >
           {guardando ? "Guardando..." : esNuevo ? "Crear producto" : "Guardar cambios"}
         </button>
-        <button type="button" onClick={onCancelar} className="text-sm text-neutral-600 underline">
+        <button type="button" onClick={onCancelar} className="text-sm text-tenue underline">
           Cancelar
         </button>
       </div>
@@ -346,7 +346,7 @@ function Formulario({
 }
 
 const entrada =
-  "mt-1 w-full border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-neutral-900 focus:outline-none";
+  "mt-1 w-full border border-borde px-3 py-2 text-tinta focus:border-tinta focus:outline-none";
 
 function Campo({
   label,
@@ -360,10 +360,10 @@ function Campo({
   children: React.ReactNode;
 }) {
   return (
-    <label className={`block text-sm text-neutral-700 ${className}`}>
+    <label className={`block text-sm text-tenue ${className}`}>
       {label}
       {children}
-      {ayuda && <span className="mt-1 block text-xs text-neutral-500">{ayuda}</span>}
+      {ayuda && <span className="mt-1 block text-xs text-tenue">{ayuda}</span>}
     </label>
   );
 }

@@ -15,7 +15,7 @@ export default function AdminLayout() {
 
   if (verificando) {
     return (
-      <main className="mx-auto max-w-sm px-6 py-20 text-neutral-600">
+      <main className="mx-auto max-w-sm px-6 py-20 text-tenue">
         Verificando sesión...
       </main>
     );
@@ -27,13 +27,13 @@ export default function AdminLayout() {
     <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl text-neutral-900">Panel de BINOMA</h1>
+          <h1 className="text-2xl text-tinta">Panel de BINOMA</h1>
           <nav className="mt-2 flex gap-4 text-sm">
             <Solapa to="/admin">Pedidos</Solapa>
             <Solapa to="/admin/productos">Productos</Solapa>
           </nav>
         </div>
-        <button onClick={logout} className="text-sm text-neutral-600 underline">
+        <button onClick={logout} className="text-sm text-tenue underline">
           Cerrar sesión
         </button>
       </header>
@@ -54,8 +54,8 @@ function Solapa({ to, children }: { to: string; children: React.ReactNode }) {
       end={to === "/admin"}
       className={({ isActive }) =>
         isActive
-          ? "border-b-2 border-neutral-900 pb-1 text-neutral-900"
-          : "border-b-2 border-transparent pb-1 text-neutral-600 hover:text-neutral-900"
+          ? "border-b-2 border-tinta pb-1 text-tinta"
+          : "border-b-2 border-transparent pb-1 text-tenue hover:text-tinta"
       }
     >
       {children}

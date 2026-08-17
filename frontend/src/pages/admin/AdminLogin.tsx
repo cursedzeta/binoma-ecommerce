@@ -30,12 +30,12 @@ export default function AdminLogin() {
 
   return (
     <main className="mx-auto max-w-sm px-6 py-20">
-      <h1 className="text-2xl text-neutral-900">BINOMA</h1>
-      <p className="mt-1 text-sm text-neutral-600">Panel de administración</p>
+      <h1 className="text-2xl text-tinta">BINOMA</h1>
+      <p className="mt-1 text-sm text-tenue">Panel de administración</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5">
         <div>
-          <label htmlFor="email" className="block text-sm text-neutral-700">
+          <label htmlFor="email" className="block text-sm text-tenue">
             Email
           </label>
           <input
@@ -45,12 +45,12 @@ export default function AdminLogin() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="username"
             required
-            className="mt-1 w-full border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full border border-borde px-3 py-2 text-tinta focus:border-tinta focus:outline-none"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm text-neutral-700">
+          <label htmlFor="password" className="block text-sm text-tenue">
             Contraseña
           </label>
           <input
@@ -60,12 +60,12 @@ export default function AdminLogin() {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             required
-            className="mt-1 w-full border border-neutral-300 px-3 py-2 text-neutral-900 focus:border-neutral-900 focus:outline-none"
+            className="mt-1 w-full border border-borde px-3 py-2 text-tinta focus:border-tinta focus:outline-none"
           />
         </div>
 
         {error && (
-          <p role="alert" className="border border-neutral-500 p-3 text-sm text-neutral-900">
+          <p role="alert" className="border border-borde p-3 text-sm text-tinta">
             {error}
           </p>
         )}
@@ -73,7 +73,7 @@ export default function AdminLogin() {
         <button
           type="submit"
           disabled={enviando}
-          className="w-full border border-neutral-900 px-6 py-3 text-neutral-900 disabled:border-neutral-300 disabled:text-neutral-400"
+          className="w-full border border-tinta px-6 py-3 text-tinta disabled:border-borde disabled:text-tenue"
         >
           {enviando ? "Entrando..." : "Entrar"}
         </button>

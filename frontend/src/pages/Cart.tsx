@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../hooks/useProducts";
 import { formatPrice } from "../lib/format";
@@ -9,22 +10,22 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <h1 className="text-2xl text-neutral-900">Tu carrito</h1>
-        <p className="mt-4 text-neutral-600">Todavía no agregaste productos.</p>
-        <Link to="/" className="mt-4 inline-block underline">
+      <Contenedor ancho="angosto" className="py-20">
+        <h1 className="text-titulo text-tinta">Tu carrito</h1>
+        <p className="mt-4 text-tenue">Todavía no agregaste piezas.</p>
+        <BotonLink to="/" className="mt-8">
           Ver el catálogo
-        </Link>
-      </main>
+        </BotonLink>
+      </Contenedor>
     );
   }
 
-  if (loading) {
-    return <Estado>Cargando tu carrito...</Estado>;
-  }
-
-  if (error || !products) {
-    return <Estado>No se pudo cargar el carrito: {error}</Estado>;
+  if (loading || !products) {
+    return (
+      <Contenedor ancho="angosto" className="py-20 text-tenue">
+        {error ? `No se pudo cargar el carrito: ${error}` : "Cargando tu carrito..."}
+      </Contenedor>
+    );
   }
 
   // El carrito guarda ids; los datos para mostrar salen del catálogo actual.
@@ -39,83 +40,72 @@ export default function Cart() {
   const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-2xl text-neutral-900">Tu carrito</h1>
+    <Contenedor ancho="angosto" className="py-10 sm:py-16">
+      <h1 className="text-titulo text-tinta">Tu carrito</h1>
 
       {desaparecidos > 0 && (
-        <p className="mt-4 border border-neutral-400 p-3 text-sm text-neutral-700">
+        <p className="mt-5 rounded-pieza border-l-2 border-alerta bg-alerta-suave px-4 py-3 text-sm">
           {desaparecidos === 1
-            ? "Un producto ya no está disponible y se quitó del carrito."
-            : `${desaparecidos} productos ya no están disponibles y se quitaron del carrito.`}
+            ? "Una pieza ya no está disponible y se quitó del carrito."
+            : `${desaparecidos} piezas ya no están disponibles y se quitaron del carrito.`}
         </p>
       )}
 
-      <ul className="mt-8 divide-y divide-neutral-300 border-y border-neutral-300">
+      <ul className="mt-8 flex flex-col divide-y divide-borde border-y border-borde">
         {lineas.map(({ item, product, subtotal }) => (
-          <li key={product.id} className="flex gap-4 py-6">
+          <li key={product.id} className="flex flex-wrap gap-4 py-5 sm:flex-nowrap">
             <Link
               to={`/producto/${product.slug}`}
-              className="h-24 w-32 shrink-0 overflow-hidden bg-neutral-100"
+              className="h-24 w-32 shrink-0 overflow-hidden rounded-pieza bg-superficie-2"
             >
               {product.images[0] && (
                 <img
                   src={product.images[0]}
                   alt={product.name}
                   className="h-full w-full object-cover"
+                  loading="lazy"
                 />
               )}
             </Link>
 
-            <div className="flex flex-1 flex-col justify-between">
+            <div className="flex min-w-40 flex-1 flex-col justify-between gap-3">
               <div>
+                <Etiqueta>{product.category}</Etiqueta>
                 <Link
                   to={`/producto/${product.slug}`}
-                  className="text-neutral-900 hover:underline"
+                  className="block text-tinta transition hover:text-marca-texto"
                 >
                   {product.name}
                 </Link>
-                <p className="text-sm text-neutral-600">
-                  {formatPrice(product.price)} c/u
-                </p>
+                <p className="text-sm text-tenue">{formatPrice(product.price)} c/u</p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() =>
-                    setQuantity(product.id, item.quantity - 1, product.stock)
-                  }
-                  aria-label={`Quitar una unidad de ${product.name}`}
-                  className="border border-neutral-300 px-2 leading-6 hover:border-neutral-900"
+              <div className="flex items-center gap-2">
+                <Cantidad
+                  label={`Quitar una unidad de ${product.name}`}
+                  onClick={() => setQuantity(product.id, item.quantity - 1, product.stock)}
                 >
                   −
-                </button>
-
-                <span className="w-8 text-center text-sm">{item.quantity}</span>
-
-                <button
-                  onClick={() =>
-                    setQuantity(product.id, item.quantity + 1, product.stock)
-                  }
+                </Cantidad>
+                <span className="w-8 text-center text-sm tabular-nums">{item.quantity}</span>
+                <Cantidad
+                  label={`Agregar una unidad de ${product.name}`}
+                  onClick={() => setQuantity(product.id, item.quantity + 1, product.stock)}
                   disabled={item.quantity >= product.stock}
-                  aria-label={`Agregar una unidad de ${product.name}`}
-                  className="border border-neutral-300 px-2 leading-6 hover:border-neutral-900 disabled:text-neutral-300 disabled:hover:border-neutral-300"
                 >
                   +
-                </button>
-
+                </Cantidad>
                 {item.quantity >= product.stock && (
-                  <span className="text-xs text-neutral-500">
-                    máximo disponible
-                  </span>
+                  <span className="text-xs text-tenue">máximo disponible</span>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col items-end justify-between">
-              <p className="text-neutral-900">{formatPrice(subtotal)}</p>
+            <div className="flex w-full flex-row items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-end sm:justify-between">
+              <p className="text-tinta">{formatPrice(subtotal)}</p>
               <button
                 onClick={() => removeItem(product.id)}
-                className="text-sm text-neutral-600 underline hover:text-neutral-900"
+                className="text-sm text-tenue underline transition hover:text-tinta"
               >
                 Quitar
               </button>
@@ -124,31 +114,46 @@ export default function Cart() {
         ))}
       </ul>
 
-      <div className="mt-8 flex items-start justify-between">
+      <div className="mt-8 flex flex-wrap items-start justify-between gap-6">
         <button
           onClick={clear}
-          className="text-sm text-neutral-600 underline hover:text-neutral-900"
+          className="text-sm text-tenue underline transition hover:text-tinta"
         >
           Vaciar carrito
         </button>
 
-        <div className="text-right">
-          <p className="text-sm text-neutral-600">Total</p>
-          <p className="text-2xl text-neutral-900">{formatPrice(total)}</p>
-          <Link
-            to="/checkout"
-            className="mt-4 inline-block border border-neutral-900 px-6 py-3 text-neutral-900"
-          >
+        <div className="ml-auto text-right">
+          <Etiqueta>Total</Etiqueta>
+          <p className="font-display text-3xl text-tinta">{formatPrice(total)}</p>
+          <BotonLink to="/checkout" className="mt-4">
             Finalizar compra
-          </Link>
+          </BotonLink>
         </div>
       </div>
-    </main>
+    </Contenedor>
   );
 }
 
-function Estado({ children }: { children: React.ReactNode }) {
+function Cantidad({
+  label,
+  onClick,
+  disabled,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12 text-neutral-600">{children}</main>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      className="h-8 w-8 rounded-pieza border border-borde text-tinta transition hover:border-tinta disabled:text-tenue disabled:hover:border-borde"
+    >
+      {children}
+    </button>
   );
 }

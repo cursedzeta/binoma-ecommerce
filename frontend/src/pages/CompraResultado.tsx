@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useOrder } from "../hooks/useOrder";
 import { formatPrice } from "../lib/format";
@@ -41,7 +42,10 @@ export default function CompraResultado() {
   if (!esResultado(resultado)) {
     return (
       <Marco titulo="Página no encontrada">
-        <p className="text-neutral-700">Ese enlace no corresponde a ninguna compra.</p>
+        <p className="text-tenue">Ese enlace no corresponde a ninguna compra.</p>
+        <BotonLink to="/" className="mt-8">
+          Ir al catálogo
+        </BotonLink>
       </Marco>
     );
   }
@@ -49,18 +53,16 @@ export default function CompraResultado() {
   if (resultado === "fallida") {
     return (
       <Marco titulo="El pago no se completó">
-        <p className="text-neutral-700">
+        <p className="text-tenue">
           No se pudo procesar el pago. No se te cobró nada y tu carrito sigue
           intacto, así que podés intentar de nuevo cuando quieras.
         </p>
         <DetallePedido order={order} loading={loading} error={error} />
-        <div className="mt-6 flex gap-4">
-          <Link to="/carrito" className="underline">
-            Volver al carrito
-          </Link>
-          <Link to="/" className="underline">
+        <div className="mt-8 flex flex-wrap gap-3">
+          <BotonLink to="/carrito">Volver al carrito</BotonLink>
+          <BotonLink to="/" variante="secundario">
             Ver el catálogo
-          </Link>
+          </BotonLink>
         </div>
       </Marco>
     );
@@ -69,17 +71,17 @@ export default function CompraResultado() {
   if (resultado === "pendiente") {
     return (
       <Marco titulo="Tu pago está pendiente">
-        <p className="text-neutral-700">
+        <p className="text-tenue">
           Generamos tu cupón de pago. Cuando lo abones en el local de cobranza, tu
           pedido se confirma automáticamente y te avisamos por email.
         </p>
-        <p className="mt-3 text-sm text-neutral-600">
+        <p className="mt-3 text-sm text-tenue">
           Los pagos en efectivo pueden tardar hasta dos días hábiles en acreditarse.
         </p>
         <DetallePedido order={order} loading={loading} error={error} />
-        <Link to="/" className="mt-6 inline-block underline">
+        <BotonLink to="/" className="mt-8">
           Volver al catálogo
-        </Link>
+        </BotonLink>
       </Marco>
     );
   }
@@ -90,12 +92,12 @@ export default function CompraResultado() {
   return (
     <Marco titulo={confirmado ? "¡Gracias por tu compra!" : "Recibimos tu pago"}>
       {confirmado ? (
-        <p className="text-neutral-700">
+        <p className="text-tenue">
           Tu pago está confirmado. Te mandamos el detalle por email y nos
           contactamos para coordinar la entrega.
         </p>
       ) : (
-        <p className="text-neutral-700">
+        <p className="text-tenue">
           {esperandoConfirmacion
             ? "Estamos confirmando el pago con Mercado Pago. Esto puede tardar unos segundos."
             : "Tu pedido quedó registrado. Apenas Mercado Pago confirme el pago te avisamos por email."}
@@ -104,9 +106,9 @@ export default function CompraResultado() {
 
       <DetallePedido order={order} loading={loading} error={error} />
 
-      <Link to="/" className="mt-6 inline-block underline">
+      <BotonLink to="/" className="mt-8">
         Seguir comprando
-      </Link>
+      </BotonLink>
     </Marco>
   );
 }
@@ -121,7 +123,7 @@ function DetallePedido({
   error: string | null;
 }) {
   if (loading) {
-    return <p className="mt-6 text-sm text-neutral-500">Buscando tu pedido...</p>;
+    return <p className="mt-8 text-sm text-tenue">Buscando tu pedido...</p>;
   }
 
   // Sin external_reference (alguien entró a mano) no hay nada que mostrar, pero
@@ -129,7 +131,7 @@ function DetallePedido({
   if (!order) {
     if (error) {
       return (
-        <p className="mt-6 text-sm text-neutral-600">
+        <p className="mt-8 text-sm text-tenue">
           No pudimos recuperar el detalle del pedido: {error}
         </p>
       );
@@ -138,30 +140,31 @@ function DetallePedido({
   }
 
   return (
-    <section className="mt-8 border-y border-neutral-300 py-4">
-      <div className="flex flex-wrap justify-between gap-2">
-        <span className="text-sm text-neutral-500">
-          Pedido <span className="text-neutral-900">{order.id}</span>
-        </span>
+    <section className="mt-8 rounded-pieza border border-borde bg-superficie p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <Etiqueta>Pedido</Etiqueta>
+          <p className="text-sm text-tinta">{order.id}</p>
+        </div>
         <EstadoPedido status={order.status} />
       </div>
 
-      <ul className="mt-4 space-y-1">
+      <ul className="mt-5 flex flex-col gap-1.5">
         {order.items.map((item) => (
-          <li key={item.id} className="flex justify-between text-sm">
-            <span className="text-neutral-700">
+          <li key={item.id} className="flex justify-between gap-4 text-sm">
+            <span className="text-tenue">
               {item.product.name} × {item.quantity}
             </span>
-            <span className="text-neutral-900">
+            <span className="shrink-0 text-tinta tabular-nums">
               {formatPrice(item.price * item.quantity)}
             </span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-3 flex justify-between border-t border-neutral-300 pt-3">
-        <span className="text-neutral-700">Total</span>
-        <span className="text-lg text-neutral-900">{formatPrice(order.total)}</span>
+      <div className="mt-4 flex justify-between border-t border-borde pt-4">
+        <span className="text-tenue">Total</span>
+        <span className="font-display text-2xl text-tinta">{formatPrice(order.total)}</span>
       </div>
     </section>
   );
@@ -175,8 +178,14 @@ function EstadoPedido({ status }: { status: Order["status"] }) {
     cancelado: "Cancelado",
   };
 
+  const pagado = status === "pagado";
+
   return (
-    <span className="border border-neutral-400 px-2 py-0.5 text-xs uppercase tracking-wide text-neutral-700">
+    <span
+      className={`rounded-pieza px-2.5 py-1 text-xs uppercase tracking-[0.12em] ${
+        pagado ? "bg-marca-suave text-marca-texto" : "border border-borde text-tenue"
+      }`}
+    >
       {etiquetas[status]}
     </span>
   );
@@ -184,9 +193,9 @@ function EstadoPedido({ status }: { status: Order["status"] }) {
 
 function Marco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-2xl text-neutral-900">{titulo}</h1>
-      <div className="mt-4">{children}</div>
-    </main>
+    <Contenedor ancho="angosto" className="py-16 sm:py-24">
+      <h1 className="text-titulo text-tinta">{titulo}</h1>
+      <div className="mt-5">{children}</div>
+    </Contenedor>
   );
 }

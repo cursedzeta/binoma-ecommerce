@@ -1,7 +1,9 @@
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import CompraResultado from "./pages/CompraResultado";
@@ -11,22 +13,25 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminPedidos from "./pages/admin/AdminPedidos";
 import AdminProductos from "./pages/admin/AdminProductos";
 
-// La tienda lleva el navbar con el carrito; el panel no.
+// La tienda lleva navbar y pie de página; el panel no.
 function TiendaLayout() {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <Outlet />
-    </>
+      <div className="flex-1">
+        <Outlet />
+      </div>
+      <Footer />
+    </div>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <div className="min-h-screen bg-white text-neutral-800">
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
             <Routes>
               <Route element={<TiendaLayout />}>
                 <Route path="/" element={<Home />} />
@@ -42,10 +47,10 @@ function App() {
                 <Route path="productos" element={<AdminProductos />} />
               </Route>
             </Routes>
-          </div>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
