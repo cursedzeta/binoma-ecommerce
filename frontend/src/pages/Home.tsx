@@ -18,7 +18,15 @@ export default function Home() {
 
       <section className="py-16 sm:py-24">
         <Contenedor>
-          <BannerProductos />
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-borde pb-6">
+            <div>
+              <Etiqueta>Destacados</Etiqueta>
+              <h2 className="mt-1 text-titulo text-tinta">Productos</h2>
+            </div>
+            <BotonLink to="/catalogo" variante="secundario">
+              Ver todo
+            </BotonLink>
+          </div>
 
           <div className="mt-10">
             {loading && <Esqueleto />}
@@ -37,45 +45,72 @@ export default function Home() {
 
             {destacados.length > 0 && <CarruselProductos products={destacados} />}
           </div>
-
-          <div className="mt-12 flex justify-center">
-            <BotonLink to="/catalogo" variante="secundario">
-              Ver todo el catálogo
-            </BotonLink>
-          </div>
         </Contenedor>
       </section>
     </>
   );
 }
 
+/**
+ * Hero sin fotografía.
+ *
+ * El fondo son láminas horizontales finas: es el canto del fenólico visto de
+ * costado, que es la firma del material con el que trabaja BINOMA. Se dibuja
+ * con un repeating-linear-gradient, así que no pesa nada y escala a cualquier
+ * pantalla sin pixelarse.
+ *
+ * Cuando exista la fotografía de producto, esta sección es la primera que
+ * conviene reemplazar: una foto buena vende más que cualquier textura.
+ */
 function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-borde">
-      {/* Halo cálido detrás del logo. Es sutil a propósito: da profundidad sin
-          competir con el naranja de la marca. */}
+    <section className="relative isolate overflow-hidden border-b border-borde">
+      {/* Láminas del fenólico */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[820px] max-w-[130%] -translate-x-1/2 -translate-y-1/3 rounded-full bg-marca opacity-[0.07] blur-3xl"
+        className="absolute inset-0 -z-10 opacity-[0.55] dark:opacity-40"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(180deg, var(--color-superficie-2) 0px, var(--color-superficie-2) 3px, transparent 3px, transparent 11px)",
+        }}
+      />
+
+      {/* Halo cálido: separa el logo de la textura y le da profundidad. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[560px] w-[900px] max-w-[140%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-marca opacity-[0.09] blur-3xl"
+      />
+
+      {/* Desvanecido hacia abajo, para que las láminas no corten de golpe
+          contra la sección siguiente. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-b from-transparent to-fondo"
       />
 
       <Contenedor className="relative">
-        <div className="flex flex-col items-center py-20 text-center sm:py-28">
+        <div className="flex flex-col items-center py-24 text-center sm:py-32">
           <img
             src="/binoma_logo.svg"
             alt="BINOMA"
             width={1073}
             height={225}
-            className="w-full max-w-md"
+            className="w-full max-w-lg"
           />
 
-          <h1 className="mt-10 max-w-2xl text-display text-tinta">
+          <div className="mt-8 flex items-center gap-3" aria-hidden="true">
+            <span className="h-px w-10 bg-borde" />
+            <Etiqueta>Córdoba, Argentina</Etiqueta>
+            <span className="h-px w-10 bg-borde" />
+          </div>
+
+          <h1 className="mt-8 max-w-3xl text-display text-tinta">
             Muebles de diseño en fenólico
           </h1>
 
-          <p className="mt-5 max-w-xl text-subtitulo text-tenue">
-            Piezas de líneas puras, hechas en Córdoba. Estructuras autoportantes,
-            cantos vistos y terminación al agua.
+          <p className="mt-6 max-w-xl text-subtitulo text-tenue">
+            Piezas de líneas puras. Estructuras autoportantes, cantos vistos y
+            terminación al agua.
           </p>
 
           <div className="mt-10">
@@ -84,31 +119,6 @@ function Hero() {
         </div>
       </Contenedor>
     </section>
-  );
-}
-
-/**
- * Banner del bloque de productos.
- *
- * Por ahora es tipográfico sobre un fondo cálido. Cuando llegue la foto, se
- * reemplaza el degradado por la imagen y el texto queda encima: la estructura
- * ya está lista para eso.
- */
-function BannerProductos() {
-  return (
-    <div className="relative overflow-hidden rounded-pieza border border-borde bg-superficie-2">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-br from-marca/10 via-transparent to-transparent"
-      />
-      <div className="relative flex flex-col gap-2 px-6 py-10 sm:px-10 sm:py-14">
-        <Etiqueta>Destacados</Etiqueta>
-        <h2 className="text-titulo text-tinta">Productos</h2>
-        <p className="max-w-md text-tenue">
-          Una selección de lo que hay disponible ahora mismo.
-        </p>
-      </div>
-    </div>
   );
 }
 
