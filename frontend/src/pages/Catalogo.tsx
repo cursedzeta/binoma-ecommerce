@@ -1,14 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { Contenedor, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
 
 export default function Catalogo() {
-  const [categoria, setCategoria] = useState<string | undefined>(undefined);
+  // La categoría vive en la URL, no en el estado del componente. Así el filtro
+  // se puede compartir por WhatsApp, se conserva al volver atrás, y los tiles
+  // de la Home pueden enlazar directamente a una categoría.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoria = searchParams.get("categoria") ?? undefined;
 
-  // Traemos el catálogo entero una sola vez y filtramos en el navegador. Las
-  // categorías salen de los productos que existen, así una categoría nueva
-  // cargada desde el panel aparece sola en los filtros.
   const { data: todos, loading, error } = useProducts();
 
   const categorias = useMemo(
@@ -21,21 +23,29 @@ export default function Catalogo() {
     [todos, categoria],
   );
 
+  function elegir(nueva: string | undefined) {
+    // replace evita llenar el historial: tocar cinco filtros y volver atrás
+    // debería devolverte a la página anterior, no recorrer los cinco filtros.
+    setSearchParams(nueva ? { categoria: nueva } : {}, { replace: true });
+  }
+
   return (
     <Contenedor className="py-10 sm:py-16">
       <div className="flex flex-wrap items-end justify-between gap-5 border-b border-borde pb-6">
         <div>
           <Etiqueta>Catálogo</Etiqueta>
-          <h1 className="mt-1 text-titulo text-tinta">Todas las piezas</h1>
+          <h1 className="mt-1 text-titulo capitalize text-tinta">
+            {categoria ?? "Todas las piezas"}
+          </h1>
         </div>
 
         {categorias.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            <Filtro activo={!categoria} onClick={() => setCategoria(undefined)}>
+            <Filtro activo={!categoria} onClick={() => elegir(undefined)}>
               Todo
             </Filtro>
             {categorias.map((c) => (
-              <Filtro key={c} activo={categoria === c} onClick={() => setCategoria(c)}>
+              <Filtro key={c} activo={categoria === c} onClick={() => elegir(c)}>
                 {c}
               </Filtro>
             ))}

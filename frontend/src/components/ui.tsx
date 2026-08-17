@@ -20,22 +20,62 @@ const VARIANTES: Record<Variante, string> = {
 };
 
 const BASE =
-  "inline-flex items-center justify-center gap-2 rounded-pieza px-5 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed";
+  "group/boton inline-flex items-center justify-center gap-2.5 rounded-pieza px-6 py-3 text-sm font-medium transition disabled:cursor-not-allowed";
+
+/** Flecha que acompaña a las llamadas a la acción y se corre al pasar el mouse. */
+export function FlechaCta() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="transition-transform duration-200 group-hover/boton:translate-x-0.5"
+    >
+      <circle cx="12" cy="12" r="9.2" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M9.8 12h4.6m0 0-1.8-1.9m1.8 1.9-1.8 1.9"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export function Boton({
   variante = "primario",
+  flecha = false,
   className = "",
+  children,
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variante?: Variante }) {
-  return <button className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props} />;
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variante?: Variante;
+  flecha?: boolean;
+}) {
+  return (
+    <button className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props}>
+      {children}
+      {flecha && <FlechaCta />}
+    </button>
+  );
 }
 
 export function BotonLink({
   variante = "primario",
+  flecha = false,
   className = "",
+  children,
   ...props
-}: React.ComponentProps<typeof Link> & { variante?: Variante }) {
-  return <Link className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props} />;
+}: React.ComponentProps<typeof Link> & { variante?: Variante; flecha?: boolean }) {
+  return (
+    <Link className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props}>
+      {children}
+      {flecha && <FlechaCta />}
+    </Link>
+  );
 }
 
 /**
@@ -46,10 +86,37 @@ export function BotonLink({
  */
 export function BotonAncla({
   variante = "primario",
+  flecha = false,
   className = "",
+  children,
   ...props
-}: React.AnchorHTMLAttributes<HTMLAnchorElement> & { variante?: Variante }) {
-  return <a className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props} />;
+}: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  variante?: Variante;
+  flecha?: boolean;
+}) {
+  return (
+    <a className={`${BASE} ${VARIANTES[variante]} ${className}`} {...props}>
+      {children}
+      {flecha && <FlechaCta />}
+    </a>
+  );
+}
+
+/** Enlace de texto con flecha, para acciones secundarias que no piden un botón. */
+export function EnlaceFlecha({
+  className = "",
+  children,
+  ...props
+}: React.ComponentProps<typeof Link>) {
+  return (
+    <Link
+      className={`group/boton inline-flex items-center gap-2 text-sm text-tinta underline-offset-4 transition hover:text-marca-texto ${className}`}
+      {...props}
+    >
+      {children}
+      <FlechaCta />
+    </Link>
+  );
 }
 
 /** Etiqueta chica en mayúsculas: categorías, estados, encabezados de sección. */
@@ -61,9 +128,7 @@ export function Etiqueta({
   className?: string;
 }) {
   return (
-    <span
-      className={`text-xs uppercase tracking-[0.14em] text-tenue ${className}`}
-    >
+    <span className={`text-xs uppercase tracking-[0.14em] text-tenue ${className}`}>
       {children}
     </span>
   );
@@ -75,18 +140,6 @@ export function Aviso({ children }: { children: React.ReactNode }) {
     <div
       role="status"
       className="rounded-pieza border-l-2 border-alerta bg-alerta-suave px-4 py-3 text-sm"
-    >
-      {children}
-    </div>
-  );
-}
-
-/** Recuadro para errores. Lleva role="alert" para que lo anuncien los lectores. */
-export function Error({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      role="alert"
-      className="rounded-pieza border border-borde bg-superficie px-4 py-3 text-sm"
     >
       {children}
     </div>

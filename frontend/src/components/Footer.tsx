@@ -6,8 +6,8 @@ const INSTAGRAM = "https://www.instagram.com/binoma.estudio/";
 export default function Footer() {
   return (
     <footer className="mt-auto border-t border-borde">
-      <Contenedor className="flex flex-col gap-10 py-12 sm:flex-row sm:justify-between">
-        <div>
+      <Contenedor className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="lg:col-span-2">
           <img
             src="/binoma_logo.svg"
             alt="BINOMA"
@@ -15,51 +15,65 @@ export default function Footer() {
             height={225}
             className="h-5 w-auto"
           />
-          <p className="mt-4 max-w-xs text-sm text-tenue">
-            Muebles de diseño en fenólico. Córdoba, Argentina.
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-tenue">
+            Muebles de diseño en fenólico. Diseñados y fabricados en Córdoba,
+            Argentina.
           </p>
         </div>
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:gap-16">
-          <div>
-            <Etiqueta>Tienda</Etiqueta>
-            <ul className="mt-3 flex flex-col gap-2 text-sm">
-              <li>
-                <Link to="/catalogo" className="text-tenue transition hover:text-tinta">
-                  Catálogo
-                </Link>
-              </li>
-              <li>
-                <Link to="/carrito" className="text-tenue transition hover:text-tinta">
-                  Carrito
-                </Link>
-              </li>
-            </ul>
-          </div>
+        <div>
+          <Etiqueta>Tienda</Etiqueta>
+          <ul className="mt-4 flex flex-col gap-2.5 text-sm">
+            <li>
+              <Enlace to="/catalogo">Catálogo</Enlace>
+            </li>
+            <li>
+              <Enlace to="/carrito">Carrito</Enlace>
+            </li>
+          </ul>
+        </div>
 
-          <div>
-            <Etiqueta>Seguinos</Etiqueta>
-            <a
-              href={INSTAGRAM}
-              // noopener protege contra que la pestaña nueva manipule esta;
-              // noreferrer evita filtrarle a Instagram desde dónde llegaste.
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 rounded-pieza border border-borde px-3.5 py-2 text-sm text-tinta transition hover:border-marca hover:text-marca-texto"
-            >
-              <IconoInstagram />
-              @binoma.estudio
-            </a>
-          </div>
+        <div>
+          <Etiqueta>Seguinos</Etiqueta>
+          <a
+            href={INSTAGRAM}
+            // noopener protege contra que la pestaña nueva manipule esta;
+            // noreferrer evita filtrarle a Instagram desde dónde llegaste.
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2.5 rounded-pieza border border-borde px-4 py-2.5 text-sm text-tinta transition hover:border-marca hover:text-marca-texto"
+          >
+            <IconoInstagram />
+            @binoma.estudio
+          </a>
+          <p className="mt-4 text-sm text-tenue">
+            Escribinos por ahí para consultas y encargos a medida.
+          </p>
         </div>
       </Contenedor>
 
-      <Contenedor className="border-t border-borde py-5">
+      <Contenedor className="flex flex-col gap-4 border-t border-borde py-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-tenue">
           © {new Date().getFullYear()} BINOMA. Todos los derechos reservados.
         </p>
+
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs text-tenue">Pagá con</span>
+          <span className="rounded-pieza border border-borde px-2.5 py-1 text-xs font-medium text-tenue">
+            Mercado Pago
+          </span>
+          <span className="text-xs text-tenue">Tarjeta, débito y efectivo</span>
+        </div>
       </Contenedor>
     </footer>
+  );
+}
+
+function Enlace({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link to={to} className="text-tenue transition hover:text-tinta">
+      {children}
+    </Link>
   );
 }
 
