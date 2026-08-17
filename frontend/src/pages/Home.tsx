@@ -1,12 +1,24 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../hooks/useProducts";
 
-const categorias = ["banco", "mesa", "silla"];
-
 export default function Home() {
   const [categoria, setCategoria] = useState<string | undefined>(undefined);
-  const { data: products, loading, error } = useProducts(categoria);
+
+  // Traemos el catálogo entero una sola vez y filtramos en el navegador. Las
+  // categorías salen de los productos que existen, así una categoría nueva
+  // cargada desde el panel aparece sola en los filtros.
+  const { data: todos, loading, error } = useProducts();
+
+  const categorias = useMemo(
+    () => [...new Set((todos ?? []).map((p) => p.category))].sort(),
+    [todos],
+  );
+
+  const products = useMemo(
+    () => (categoria ? (todos ?? []).filter((p) => p.category === categoria) : todos),
+    [todos, categoria],
+  );
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">

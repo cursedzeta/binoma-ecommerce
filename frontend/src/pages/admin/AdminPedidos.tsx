@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { formatPrice } from "../../lib/format";
 import {
   ApiError,
@@ -21,8 +20,6 @@ const ETIQUETAS: Record<string, string> = {
 };
 
 export default function AdminPedidos() {
-  const { logout } = useAuth();
-
   const [pedidos, setPedidos] = useState<Order[]>([]);
   const [resumen, setResumen] = useState<ResumenEstado[]>([]);
   const [filtro, setFiltro] = useState<string | undefined>(undefined);
@@ -91,18 +88,8 @@ export default function AdminPedidos() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl text-neutral-900">Pedidos</h1>
-          <p className="text-sm text-neutral-600">Panel de administración de BINOMA</p>
-        </div>
-        <button onClick={logout} className="text-sm text-neutral-600 underline">
-          Cerrar sesión
-        </button>
-      </header>
-
-      <section className="mt-8 flex flex-wrap gap-4">
+    <div>
+      <section className="flex flex-wrap gap-4">
         {resumen.map((r) => (
           <div key={r.status} className="border border-neutral-300 px-4 py-3">
             <p className="text-xs uppercase tracking-wide text-neutral-500">
@@ -221,7 +208,7 @@ export default function AdminPedidos() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   );
 }
 

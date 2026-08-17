@@ -149,3 +149,64 @@ export function reconciliarPedido(id: string) {
     conAuth: true,
   });
 }
+
+// --- Productos (panel) ---
+
+/**
+ * Producto tal como lo ve el panel: incluye el conteo de pedidos en los que
+ * aparece, que es lo que determina si se puede borrar.
+ */
+export type ProductoAdmin = Product & {
+  _count: { orderItems: number };
+};
+
+/** Los datos que edita el formulario. El slug lo genera el backend. */
+export type DatosProducto = {
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  images: string[];
+  stock: number;
+};
+
+export function getProductosAdmin() {
+  return request<ProductoAdmin[]>("/admin/products", { conAuth: true });
+}
+
+export function getCategorias() {
+  return request<{ category: string; cantidad: number }[]>("/admin/products/categorias", {
+    conAuth: true,
+  });
+}
+
+export function crearProducto(datos: DatosProducto) {
+  return request<Product>("/admin/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+    conAuth: true,
+  });
+}
+
+export function editarProducto(id: string, datos: Partial<DatosProducto>) {
+  return request<Product>(`/admin/products/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+    conAuth: true,
+  });
+}
+
+export async function borrarProducto(id: string) {
+  // Responde 204 sin cuerpo, así que no pasa por request(), que espera JSON.
+  const res = await fetch(`${BASE_URL}/api/admin/products/${id}`, {
+    method: "DELETE",
+    headers: tokenAdmin ? { Authorization: `Bearer ${tokenAdmin}` } : {},
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as CuerpoError | null;
+    throw new ApiError(body?.error ?? `Error ${res.status}`, res.status, body?.detalles ?? []);
+  }
+}
