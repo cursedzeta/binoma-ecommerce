@@ -1,9 +1,14 @@
 import CarruselProductos from "../components/CarruselProductos";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
+import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
 
 export default function Home() {
   const { data: products, loading, error } = useProducts();
+
+  // Si alguien tenía en el carrito una pieza que ya se borró del catálogo, se
+  // limpia acá: el contador del navbar deja de mentir apenas entra a la tienda.
+  useSincronizarCarrito(products);
 
   // En el carrusel van primero los que se pueden comprar: mostrar arriba de
   // todo una pieza sin stock sería empezar por una decepción.

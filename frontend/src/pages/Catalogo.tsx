@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { Contenedor, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
+import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
 
 export default function Catalogo() {
   // La categoría vive en la URL, no en el estado del componente. Así el filtro
@@ -12,6 +13,8 @@ export default function Catalogo() {
   const categoria = searchParams.get("categoria") ?? undefined;
 
   const { data: todos, loading, error } = useProducts();
+
+  useSincronizarCarrito(todos);
 
   const categorias = useMemo(
     () => [...new Set((todos ?? []).map((p) => p.category))].sort(),

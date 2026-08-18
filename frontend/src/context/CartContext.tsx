@@ -25,7 +25,8 @@ type CartAction =
   | { type: "agregar"; productId: string; stock: number }
   | { type: "quitar"; productId: string }
   | { type: "cambiarCantidad"; productId: string; quantity: number; stock: number }
-  | { type: "vaciar" };
+  | { type: "vaciar" }
+  | { type: "sincronizar"; idsValidos: Set<string> };
 
 const STORAGE_KEY = "binoma:carrito";
 
@@ -75,6 +76,21 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
 
     case "vaciar":
       return { items: [] };
+
+    case "sincronizar": {
+      // Saca del carrito lo que ya no existe en el catalogo. Pasa cuando se
+      // borra un producto desde el panel mientras alguien lo tenia guardado:
+      // sin esto, el contador del navbar cuenta piezas fantasma que despues
+      // no aparecen en la lista.
+      const vigentes = state.items.filter((i) => action.idsValidos.has(i.productId));
+
+      // Si no cambio nada, devolvemos el MISMO objeto: con uno nuevo, React
+      // volveria a renderizar en cada carga del catalogo y el efecto que
+      // llama a esto entraria en bucle.
+      if (vigentes.length === state.items.length) return state;
+
+      return { items: vigentes };
+    }
   }
 }
 
@@ -110,6 +126,8 @@ type CartContextValue = {
   removeItem: (productId: string) => void;
   setQuantity: (productId: string, quantity: number, stock: number) => void;
   clear: () => void;
+  /** Descarta del carrito los productos que ya no estan en el catalogo. */
+  sincronizarConCatalogo: (idsValidos: string[]) => void;
   quantityOf: (productId: string) => number;
 };
 
@@ -140,6 +158,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setQuantity: (productId, quantity, stock) =>
         dispatch({ type: "cambiarCantidad", productId, quantity, stock }),
       clear: () => dispatch({ type: "vaciar" }),
+      sincronizarConCatalogo: (idsValidos) =>
+        dispatch({ type: "sincronizar", idsValidos: new Set(idsValidos) }),
       quantityOf: (productId) =>
         state.items.find((i) => i.productId === productId)?.quantity ?? 0,
     }),

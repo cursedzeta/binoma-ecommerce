@@ -4,11 +4,14 @@ import FormularioCompra from "../components/FormularioCompra";
 import { Boton, BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../hooks/useProducts";
+import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
 import { formatPrice } from "../lib/format";
 
 export default function Cart() {
   const { items, removeItem, setQuantity, clear } = useCart();
   const { data: products, loading, error } = useProducts();
+
+  useSincronizarCarrito(products);
 
   // El checkout no es otra página: es un segundo momento de esta misma. Cada
   // paso extra entre "quiero esto" y "pagué" pierde compradores.
@@ -61,7 +64,6 @@ export default function Cart() {
     return [{ item, product, subtotal: product.price * item.quantity }];
   });
 
-  const desaparecidos = items.length - lineas.length;
   const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
   const unidades = lineas.reduce((acc, l) => acc + l.item.quantity, 0);
 
@@ -88,13 +90,6 @@ export default function Cart() {
         </button>
       )}
 
-      {desaparecidos > 0 && (
-        <p className="mt-5 rounded-pieza border-l-2 border-alerta bg-alerta-suave px-4 py-3 text-sm">
-          {desaparecidos === 1
-            ? "Una pieza ya no está disponible y se quitó del carrito."
-            : `${desaparecidos} piezas ya no están disponibles y se quitaron del carrito.`}
-        </p>
-      )}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem] lg:items-start lg:gap-12">
         <div>
