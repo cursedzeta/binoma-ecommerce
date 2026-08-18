@@ -192,10 +192,17 @@ lectura y formularios. Los dos salen de tokens.
 Toda foto de producto va por `FotoProducto`, que resuelve dos cosas que antes
 se repetían mal en cada pantalla.
 
-**Encaje.** Entra completa, con `object-contain` sobre un fondo neutro. Nunca se
-recorta: un mueble fotografiado vertical dentro de un recuadro horizontal
-quedaba cortado por la mitad. Las bandas laterales leen como el fondo del
-estudio, no como un error.
+**Encaje.** La foto llena el marco con `object-cover`, recortando lo que sobra.
+
+Se probó lo contrario —`object-contain` sobre fondo neutro, para que el mueble
+entrara siempre completo— y se descartó: las bandas que quedaban a los costados
+se leían como un marco alrededor de la imagen y ensuciaban la pieza. Entre
+recortar y ese borde, se eligió recortar.
+
+> **Pendiente.** El recorte sigue siendo un problema real con fotos verticales.
+> La salida buena no es una clase de CSS sino normalizar el encuadre al cargar
+> las fotos, o dejar que cada producto declare el suyo. Hasta entonces, subir
+> las fotos ya encuadradas.
 
 **Peso.** Si la URL es de Cloudinary, se le agregan transformaciones solas:
 

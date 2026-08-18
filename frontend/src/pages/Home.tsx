@@ -107,14 +107,12 @@ function Hero({ destacado }: { destacado?: Product }) {
 
           <div className="relative">
             <div className="aspect-4/5 overflow-hidden rounded-pieza bg-superficie-2">
-              <div className="h-full w-full p-5">
-                <FotoProducto
-                  src={foto}
-                  alt={destacado?.name ?? ""}
-                  uso="ficha"
-                  prioridad
-                />
-              </div>
+              <FotoProducto
+                src={foto}
+                alt={destacado?.name ?? ""}
+                uso="ficha"
+                prioridad
+              />
             </div>
 
             {destacado && (

@@ -37,7 +37,7 @@ export default function GaleriaProducto({
       {/* row-reverse en el marcado: la foto grande va primero en el orden de
           lectura, que es lo que importa para un lector de pantalla, pero se
           dibuja a la derecha de las miniaturas. */}
-      <div className="flex-1 overflow-hidden rounded-pieza bg-superficie-2 p-3 sm:p-4">
+      <div className="flex-1 overflow-hidden rounded-pieza bg-superficie-2">
         <div className="aspect-4/3">
           <FotoProducto
             src={imagenes[activa]}
@@ -62,7 +62,7 @@ export default function GaleriaProducto({
               aria-selected={i === activa}
               aria-label={`Ver imagen ${i + 1}`}
               onClick={() => setActiva(i)}
-              className={`h-16 w-16 shrink-0 overflow-hidden rounded-pieza border bg-superficie-2 p-1 transition sm:h-20 sm:w-20 ${
+              className={`h-16 w-16 shrink-0 overflow-hidden rounded-pieza border bg-superficie-2 transition sm:h-20 sm:w-20 ${
                 i === activa
                   ? "border-marca"
                   : "border-borde opacity-70 hover:opacity-100"

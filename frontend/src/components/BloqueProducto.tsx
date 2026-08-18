@@ -37,9 +37,7 @@ export default function BloqueProducto({ product }: { product: Product }) {
           to={`/producto/${product.slug}`}
           className="group relative overflow-hidden rounded-pieza bg-superficie-2 aspect-4/3 sm:col-span-3"
         >
-          <div className="h-full w-full p-4">
-            <FotoProducto src={principal} alt={product.name} uso="bloque" />
-          </div>
+          <FotoProducto src={principal} alt={product.name} uso="bloque" />
 
           {/* El "Ver más" va sobre la foto, abajo a la derecha. Lleva fondo
               propio porque encima de una imagen clara el texto se pierde. */}
@@ -55,9 +53,7 @@ export default function BloqueProducto({ product }: { product: Product }) {
           aria-hidden="true"
           tabIndex={-1}
         >
-          <div className="h-full w-full p-4">
-            <FotoProducto src={secundaria ?? principal} alt="" uso="bloque" />
-          </div>
+          <FotoProducto src={secundaria ?? principal} alt="" uso="bloque" />
         </Link>
       </div>
     </article>

@@ -104,13 +104,11 @@ export default function Cart() {
                     to={`/producto/${product.slug}`}
                     className="h-24 w-32 shrink-0 overflow-hidden rounded-pieza bg-superficie-2"
                   >
-                    <div className="h-full w-full p-1.5">
-                      <FotoProducto
-                        src={product.images[0]}
-                        alt={product.name}
-                        uso="miniatura"
-                      />
-                    </div>
+                    <FotoProducto
+                      src={product.images[0]}
+                      alt={product.name}
+                      uso="miniatura"
+                    />
                   </Link>
 
                   <div className="flex min-w-40 flex-1 flex-col justify-between gap-3">

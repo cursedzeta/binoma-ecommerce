@@ -36,9 +36,7 @@ function Tarjeta({ product, proporcion }: { product: Product; proporcion: string
       className="group flex flex-col rounded-pieza border border-borde bg-superficie transition hover:border-marca"
     >
       <div className={`relative overflow-hidden bg-superficie-2 ${proporcion}`}>
-        <div className="h-full w-full p-3">
-          <FotoProducto src={product.images[0]} alt={product.name} uso="tarjeta" />
-        </div>
+        <FotoProducto src={product.images[0]} alt={product.name} uso="tarjeta" />
 
         {sinStock && (
           <span className="absolute left-3 top-3 rounded-pieza bg-fondo/95 px-2 py-1 text-xs text-tenue">

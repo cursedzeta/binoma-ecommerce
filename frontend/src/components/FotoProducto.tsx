@@ -5,10 +5,13 @@ type Uso = keyof typeof ANCHOS;
 /**
  * Foto de producto, con dos cuidados que se repetían en todas las pantallas.
  *
- * Encaje: la imagen entra completa, sin recortarse. Un mueble fotografiado
- * vertical dentro de un recuadro horizontal quedaba cortado por la mitad. Con
- * `object-contain` sobre un fondo neutro se ve entero, y las bandas laterales
- * leen como el fondo del estudio, no como un error.
+ * Encaje: la foto llena el marco con `object-cover`, recortando lo que sobra.
+ * Se probó dejarla entera con `object-contain`, pero las bandas que quedaban a
+ * los costados se leían como un marco alrededor de la imagen y ensuciaban la
+ * pieza. Entre recortar y ese borde, se eligió recortar.
+ *
+ * Queda pendiente resolverlo mejor: lo natural sería normalizar el encuadre de
+ * las fotos al cargarlas, no arreglarlo con una clase de CSS.
  *
  * Peso: si la URL es de Cloudinary, se pide el tamaño justo para dónde se va a
  * mostrar. Si no lo es, se usa tal cual.
@@ -51,7 +54,7 @@ export default function FotoProducto({
       sizes={uso === "miniatura" ? "160px" : "(max-width: 640px) 100vw, 50vw"}
       alt={alt}
       loading={prioridad ? "eager" : "lazy"}
-      className={`h-full w-full object-contain ${className}`}
+      className={`h-full w-full object-cover ${className}`}
     />
   );
 }
