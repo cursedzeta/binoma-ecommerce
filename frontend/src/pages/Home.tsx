@@ -1,4 +1,4 @@
-import CarruselProductos from "../components/CarruselProductos";
+import MosaicoProductos from "../components/MosaicoProductos";
 import { Link } from "react-router-dom";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
 import { formatPrice } from "../lib/format";
@@ -18,7 +18,7 @@ export default function Home() {
   const destacados = (products ?? [])
     .slice()
     .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0))
-    .slice(0, 8);
+    .slice(0, 6);
 
   return (
     <>
@@ -41,7 +41,7 @@ export default function Home() {
           <p className="py-12 text-center text-tenue">Todavía no hay piezas cargadas.</p>
         )}
 
-        {destacados.length > 0 && <CarruselProductos products={destacados} />}
+        {destacados.length > 0 && <MosaicoProductos products={destacados} />}
       </Seccion>
 
       <Historia />

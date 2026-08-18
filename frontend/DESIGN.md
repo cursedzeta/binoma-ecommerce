@@ -221,14 +221,14 @@ Lo mínimo que no se negocia:
 Tomados de tiendas grandes (referencia: boconcept.com) y adaptados:
 
 **Adoptados de tiendas grandes** — hero con antetítulo y titular en mayúsculas;
-botones con flecha; carrusel de destacados; ficha con línea de atributos bajo el
-precio; carrito con panel de resumen al costado; barra fija en mobile; pie
+botones con flecha; ficha con línea de atributos bajo el precio; carrito con panel de resumen al costado; barra fija en mobile; pie
 multicolumna.
 
 **Adoptados de la propuesta de Stitch** — tokens de espaciado con nombre; hero
-editorial con el mensaje a un lado y la pieza al otro; grilla de catálogo con
-proporciones mezcladas (`MosaicoProductos`), porque una mesa baja y un banco alto
-no piden el mismo encuadre.
+editorial con el mensaje a un lado y la pieza al otro; grilla con proporciones mezcladas
+(`MosaicoProductos`), que reemplazó al carrusel en la Home y en el catálogo:
+una mesa baja y un banco alto no piden el mismo encuadre, y una fila que se
+arrastra esconde piezas que conviene que se vean.
 
 **Rechazados de Stitch, a propósito** — cargar Manrope desde el CDN de Google
 (la servimos nosotros, sin parpadeo ni pedido a terceros); la fuente de íconos
