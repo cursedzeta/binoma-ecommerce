@@ -1,4 +1,4 @@
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { AuthProvider } from "./context/AuthContext";
@@ -6,7 +6,6 @@ import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Cart from "./pages/Cart";
 import Catalogo from "./pages/Catalogo";
-import Checkout from "./pages/Checkout";
 import CompraResultado from "./pages/CompraResultado";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
@@ -39,7 +38,10 @@ function App() {
                 <Route path="/catalogo" element={<Catalogo />} />
                 <Route path="/producto/:slug" element={<ProductDetail />} />
                 <Route path="/carrito" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
+                {/* El checkout dejo de ser una pagina aparte: vive dentro del
+                    carrito. La ruta queda redirigiendo por si alguien la tiene
+                    guardada o la comparte. */}
+                <Route path="/checkout" element={<Navigate to="/carrito" replace />} />
                 {/* Las tres back_urls de Mercado Pago: exitosa, fallida, pendiente */}
                 <Route path="/compra/:resultado" element={<CompraResultado />} />
               </Route>

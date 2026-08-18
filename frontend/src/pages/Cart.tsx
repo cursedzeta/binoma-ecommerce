@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { BotonLink, Contenedor, Etiqueta } from "../components/ui";
+import FormularioCompra from "../components/FormularioCompra";
+import { Boton, BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../hooks/useProducts";
 import { formatPrice } from "../lib/format";
@@ -7,6 +9,29 @@ import { formatPrice } from "../lib/format";
 export default function Cart() {
   const { items, removeItem, setQuantity, clear } = useCart();
   const { data: products, loading, error } = useProducts();
+
+  // El checkout no es otra página: es un segundo momento de esta misma. Cada
+  // paso extra entre "quiero esto" y "pagué" pierde compradores.
+  const [completandoDatos, setCompletandoDatos] = useState(false);
+  const [pedidoSinPago, setPedidoSinPago] = useState<string | null>(null);
+
+  if (pedidoSinPago) {
+    return (
+      <Contenedor ancho="angosto" className="py-20">
+        <h1 className="text-titulo text-tinta">Pedido registrado</h1>
+        <p className="mt-4 text-tenue">
+          Guardamos tu pedido, pero el cobro online no está disponible en este
+          momento. Nos vamos a contactar para coordinar el pago.
+        </p>
+        <p className="mt-6 text-sm text-tenue">
+          Número de pedido: <span className="text-tinta">{pedidoSinPago}</span>
+        </p>
+        <BotonLink to="/catalogo" flecha className="mt-8">
+          Volver al catálogo
+        </BotonLink>
+      </Contenedor>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -40,14 +65,28 @@ export default function Cart() {
   const total = lineas.reduce((acc, l) => acc + l.subtotal, 0);
   const unidades = lineas.reduce((acc, l) => acc + l.item.quantity, 0);
 
+  // Con el formulario abierto la lista pasa a ser un resumen compacto: lo que
+  // importa es completar los datos, pero el pedido tiene que seguir visible
+  // para que nadie pague a ciegas.
   return (
     <Contenedor className="py-10 pb-28 sm:py-16 sm:pb-16">
       <div className="flex items-baseline gap-3">
-        <h1 className="text-titulo text-tinta">Tu carrito</h1>
+        <h1 className="text-titulo text-tinta">
+          {completandoDatos ? "Tus datos" : "Tu carrito"}
+        </h1>
         <span className="text-sm text-tenue">
           {unidades} {unidades === 1 ? "pieza" : "piezas"}
         </span>
       </div>
+
+      {completandoDatos && (
+        <button
+          onClick={() => setCompletandoDatos(false)}
+          className="mt-2 text-sm text-tenue underline transition hover:text-tinta"
+        >
+          ← Volver a editar el carrito
+        </button>
+      )}
 
       {desaparecidos > 0 && (
         <p className="mt-5 rounded-pieza border-l-2 border-alerta bg-alerta-suave px-4 py-3 text-sm">
@@ -58,81 +97,105 @@ export default function Cart() {
       )}
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_20rem] lg:items-start lg:gap-12">
-        <ul className="flex flex-col divide-y divide-borde border-y border-borde">
-          {lineas.map(({ item, product, subtotal }) => (
-            <li key={product.id} className="flex flex-wrap gap-4 py-5 sm:flex-nowrap">
-              <Link
-                to={`/producto/${product.slug}`}
-                className="h-24 w-32 shrink-0 overflow-hidden rounded-pieza bg-superficie-2"
-              >
-                {product.images[0] && (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                )}
-              </Link>
-
-              <div className="flex min-w-40 flex-1 flex-col justify-between gap-3">
-                <div>
-                  <Etiqueta>{product.category}</Etiqueta>
+        <div>
+          {completandoDatos ? (
+            <FormularioCompra onPedidoSinPago={setPedidoSinPago} />
+          ) : (
+            <ul className="flex flex-col divide-y divide-borde border-y border-borde">
+              {lineas.map(({ item, product, subtotal }) => (
+                <li key={product.id} className="flex flex-wrap gap-4 py-5 sm:flex-nowrap">
                   <Link
                     to={`/producto/${product.slug}`}
-                    className="block text-tinta transition hover:text-marca-texto"
+                    className="h-24 w-32 shrink-0 overflow-hidden rounded-pieza bg-superficie-2"
                   >
-                    {product.name}
+                    {product.images[0] && (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
                   </Link>
-                  <p className="text-sm text-tenue">{formatPrice(product.price)} c/u</p>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <Cantidad
-                    label={`Quitar una unidad de ${product.name}`}
-                    onClick={() =>
-                      setQuantity(product.id, item.quantity - 1, product.stock)
-                    }
-                  >
-                    –
-                  </Cantidad>
-                  <span className="w-8 text-center text-sm tabular-nums">
-                    {item.quantity}
-                  </span>
-                  <Cantidad
-                    label={`Agregar una unidad de ${product.name}`}
-                    onClick={() =>
-                      setQuantity(product.id, item.quantity + 1, product.stock)
-                    }
-                    disabled={item.quantity >= product.stock}
-                  >
-                    +
-                  </Cantidad>
-                  {item.quantity >= product.stock && (
-                    <span className="text-xs text-tenue">máximo disponible</span>
-                  )}
-                </div>
-              </div>
+                  <div className="flex min-w-40 flex-1 flex-col justify-between gap-3">
+                    <div>
+                      <Etiqueta>{product.category}</Etiqueta>
+                      <Link
+                        to={`/producto/${product.slug}`}
+                        className="block text-tinta transition hover:text-marca-texto"
+                      >
+                        {product.name}
+                      </Link>
+                      <p className="text-sm text-tenue">
+                        {formatPrice(product.price)} c/u
+                      </p>
+                    </div>
 
-              <div className="flex w-full flex-row items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-end sm:justify-between">
-                <p className="font-medium tabular-nums text-tinta">
-                  {formatPrice(subtotal)}
-                </p>
-                <button
-                  onClick={() => removeItem(product.id)}
-                  className="text-sm text-tenue underline transition hover:text-tinta"
-                >
-                  Quitar
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                    <div className="flex items-center gap-2">
+                      <Cantidad
+                        label={`Quitar una unidad de ${product.name}`}
+                        onClick={() =>
+                          setQuantity(product.id, item.quantity - 1, product.stock)
+                        }
+                      >
+                        –
+                      </Cantidad>
+                      <span className="w-8 text-center text-sm tabular-nums">
+                        {item.quantity}
+                      </span>
+                      <Cantidad
+                        label={`Agregar una unidad de ${product.name}`}
+                        onClick={() =>
+                          setQuantity(product.id, item.quantity + 1, product.stock)
+                        }
+                        disabled={item.quantity >= product.stock}
+                      >
+                        +
+                      </Cantidad>
+                      {item.quantity >= product.stock && (
+                        <span className="text-xs text-tenue">máximo disponible</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex w-full flex-row items-center justify-between gap-2 sm:w-auto sm:flex-col sm:items-end sm:justify-between">
+                    <p className="font-medium tabular-nums text-tinta">
+                      {formatPrice(subtotal)}
+                    </p>
+                    <button
+                      onClick={() => removeItem(product.id)}
+                      className="text-sm text-tenue underline transition hover:text-tinta"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Resumen del pedido, al costado en escritorio. Sticky para que el
-            total y el botón queden a la vista mientras se recorre la lista. */}
+            total quede a la vista mientras se recorre la lista o se completan
+            los datos. */}
         <aside className="rounded-pieza border border-borde bg-superficie p-5 lg:sticky lg:top-24">
           <h2 className="text-subtitulo text-tinta">Resumen del pedido</h2>
+
+          {completandoDatos && (
+            <ul className="mt-4 flex flex-col gap-1.5 border-b border-borde pb-4">
+              {lineas.map(({ item, product, subtotal }) => (
+                <li key={product.id} className="flex justify-between gap-3 text-sm">
+                  <span className="text-tenue">
+                    {product.name} × {item.quantity}
+                  </span>
+                  <span className="shrink-0 tabular-nums text-tinta">
+                    {formatPrice(subtotal)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <dl className="mt-5 flex flex-col gap-2 text-sm">
             <div className="flex justify-between">
@@ -152,35 +215,50 @@ export default function Cart() {
             </span>
           </div>
 
-          <BotonLink to="/checkout" flecha className="mt-5 hidden w-full sm:inline-flex">
-            Finalizar compra
-          </BotonLink>
+          {!completandoDatos && (
+            <Boton
+              onClick={() => setCompletandoDatos(true)}
+              flecha
+              className="mt-5 hidden w-full sm:inline-flex"
+            >
+              Finalizar compra
+            </Boton>
+          )}
 
           <p className="mt-4 text-xs text-tenue">
             El envío se coordina por Instagram o teléfono después de la compra.
           </p>
 
-          <button
-            onClick={clear}
-            className="mt-5 text-sm text-tenue underline transition hover:text-tinta"
-          >
-            Vaciar carrito
-          </button>
+          {!completandoDatos && (
+            <button
+              onClick={clear}
+              className="mt-5 text-sm text-tenue underline transition hover:text-tinta"
+            >
+              Vaciar carrito
+            </button>
+          )}
         </aside>
       </div>
 
-      {/* En mobile el botón vive fijo abajo, con el total al lado. */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-borde bg-fondo/95 backdrop-blur sm:hidden">
-        <div className="flex items-center gap-3 px-5 py-3">
-          <div>
-            <p className="text-xs text-tenue">Total</p>
-            <p className="text-lg font-semibold text-tinta">{formatPrice(total)}</p>
+      {/* En mobile el botón vive fijo abajo. Con el formulario abierto
+          desaparece: el de pagar ya está dentro del formulario, y dos botones
+          de acción a la vez confunden. */}
+      {!completandoDatos && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-borde bg-fondo/95 backdrop-blur sm:hidden">
+          <div className="flex items-center gap-3 px-5 py-3">
+            <div>
+              <p className="text-xs text-tenue">Total</p>
+              <p className="text-lg font-semibold text-tinta">{formatPrice(total)}</p>
+            </div>
+            <Boton
+              onClick={() => setCompletandoDatos(true)}
+              className="ml-auto shrink-0"
+            >
+              Finalizar compra
+            </Boton>
           </div>
-          <BotonLink to="/checkout" className="ml-auto shrink-0">
-            Finalizar compra
-          </BotonLink>
         </div>
-      </div>
+      )}
     </Contenedor>
   );
 }
