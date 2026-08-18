@@ -295,27 +295,12 @@ function Formulario({
           </datalist>
         </Campo>
 
-        <Campo
-          label="Imágenes"
-          className="sm:col-span-2"
-          ayuda="Una dirección por línea. La primera es la que se ve en el catálogo."
-        >
-          <textarea
-            value={form.images.join("\n")}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                images: e.target.value
-                  .split("\n")
-                  .map((l) => l.trim())
-                  .filter(Boolean),
-              })
-            }
-            rows={3}
-            placeholder="https://..."
-            className={entrada}
+        <div className="sm:col-span-2">
+          <ImagenesDelProducto
+            imagenes={form.images}
+            onCambio={(images) => setForm({ ...form, images })}
           />
-        </Campo>
+        </div>
       </div>
 
       {errores.length > 0 && (
@@ -365,5 +350,76 @@ function Campo({
       {children}
       {ayuda && <span className="mt-1 block text-xs text-tenue">{ayuda}</span>}
     </label>
+  );
+}
+
+/**
+ * Direcciones de las imágenes del producto, una por campo.
+ *
+ * Antes era un textarea con una dirección por línea, y no dejaba escribir la
+ * segunda: al apretar Enter se creaba una línea vacía, el filtro que arma el
+ * array la descartaba, y el campo volvía a pintarse sin el salto. Con un campo
+ * por imagen el problema no existe, y además se ve cuál es la principal.
+ */
+function ImagenesDelProducto({
+  imagenes,
+  onCambio,
+}: {
+  imagenes: string[];
+  onCambio: (imagenes: string[]) => void;
+}) {
+  // Siempre hay al menos un campo visible, aunque el producto no tenga fotos.
+  const filas = imagenes.length > 0 ? imagenes : [""];
+
+  function editar(indice: number, valor: string) {
+    const copia = [...filas];
+    copia[indice] = valor;
+    onCambio(copia);
+  }
+
+  return (
+    <div>
+      <span className="text-sm font-medium text-tinta">Imágenes</span>
+      <span className="mt-1 block text-xs text-tenue">
+        La primera se ve en el catálogo. La segunda, en el bloque de la portada:
+        conviene un detalle del canto o del ensamble.
+      </span>
+
+      <div className="mt-2 flex flex-col gap-2">
+        {filas.map((url, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="w-20 shrink-0 pt-3 text-xs text-tenue">
+              {i === 0 ? "Principal" : i === 1 ? "Detalle" : `Extra ${i - 1}`}
+            </span>
+
+            <input
+              value={url}
+              onChange={(e) => editar(i, e.target.value)}
+              placeholder="https://res.cloudinary.com/..."
+              className={entrada + " mt-0"}
+            />
+
+            {filas.length > 1 && (
+              <button
+                type="button"
+                onClick={() => onCambio(filas.filter((_, j) => j !== i))}
+                aria-label={`Quitar la imagen ${i + 1}`}
+                className="shrink-0 px-2 py-2.5 text-sm text-tenue underline transition hover:text-tinta"
+              >
+                Quitar
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onCambio([...filas, ""])}
+        className="mt-3 text-sm text-marca-texto underline"
+      >
+        Agregar otra imagen
+      </button>
+    </div>
   );
 }
