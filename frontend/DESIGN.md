@@ -1,0 +1,231 @@
+# Sistema de diseño de BINOMA
+
+Especificación del sistema visual de la tienda. Si vas a tocar una pantalla,
+leé esto antes.
+
+## La regla
+
+**Ningún componente escribe un color, una fuente ni un radio sueltos.** Todo
+sale de los tokens de [src/index.css](src/index.css). Si algo necesita un valor
+que no está ahí, se agrega ahí primero.
+
+Se verifica así:
+
+```bash
+grep -rE "(text|bg|border)-(neutral|slate|gray|white|black)" src/
+```
+
+Tiene que devolver vacío.
+
+## Dónde vive la configuración
+
+Tailwind v4 se configura **en el CSS**, no en un `tailwind.config.js`. No busques
+ese archivo: no existe y no debería.
+
+```css
+@theme {
+  --color-marca: #ff7f00;   /* habilita bg-marca, text-marca, border-marca */
+}
+```
+
+Cada token de `@theme` genera sus utilidades solo.
+
+---
+
+## Color
+
+Los mismos nombres en los dos modos. El modo oscuro redefine los valores bajo
+`.dark`, así que **todo el sitio cambia sin tocar un componente**.
+
+| Token | Claro | Oscuro | Para qué |
+|---|---|---|---|
+| `fondo` | `#faf7f2` | `#16130f` | Fondo de la página |
+| `superficie` | `#fffdfa` | `#201b16` | Tarjetas, paneles |
+| `superficie-2` | `#f2ece3` | `#2a231c` | Fondos de imagen, hover, esqueletos |
+| `tinta` | `#1c1917` | `#f2ede6` | Texto principal |
+| `tenue` | `#6b6259` | `#a99d8e` | Texto secundario |
+| `borde` | `#e7dfd4` | `#342c23` | Bordes y separadores |
+| `marca` | `#ff7f00` | `#ff8a17` | Acento: botones, badges, foco |
+| `marca-texto` | `#c25e00` | `#ff9b3d` | El acento **como texto** |
+| `marca-suave` | `#fff0de` | `#2b1d0d` | Fondos teñidos del acento |
+| `sobre-marca` | `#1c1917` | `#1c1917` | Texto **encima** del naranja |
+| `exito` | `#2f6f4e` | `#6fbf90` | Estado positivo |
+| `alerta` | `#8a5a12` | `#e0ab53` | Advertencias |
+| `alerta-suave` | `#fdf3e2` | `#2a2213` | Fondo de advertencias |
+
+### Las tres decisiones de contraste
+
+Son las que más fácil se rompen sin darse cuenta.
+
+**El texto sobre el naranja es oscuro, no blanco.** Blanco sobre `#ff7f00` da
+2,3:1 y no llega a AA. Al sol se vuelve ilegible, y el teléfono se mira al sol.
+Por eso existe `sobre-marca`, que vale lo mismo en los dos modos: el naranja no
+cambia de claridad al cambiar el tema.
+
+**El naranja de marca no se usa como texto sobre fondo claro.** Da 2,2:1. Para
+texto está `marca-texto`, el mismo naranja oscurecido hasta pasar AA.
+
+```jsx
+<p className="text-marca">Precio</p>        {/* ✗ ilegible en claro */}
+<p className="text-marca-texto">Precio</p>  {/* ✓ */}
+<button className="bg-marca text-sobre-marca">Comprar</button>  {/* ✓ */}
+```
+
+**Los estados están separados de la marca.** El naranja significa BINOMA, no
+"atención". Si `alerta` fuera naranja, un mensaje de error competiría
+visualmente con el botón de comprar.
+
+### Por qué estos neutros
+
+El fondo claro es hueso cálido, no blanco puro: el blanco con el naranja da un
+contraste duro, de aviso más que de mueble. El oscuro es un marrón muy oscuro,
+no negro: el negro absoluto enfriaría una marca que es de madera.
+
+---
+
+## Tipografía
+
+**Una sola familia: Manrope.** La jerarquía la dan el peso, el tamaño y el
+tracking, no el contraste entre dos tipografías. Se sirve desde nuestro dominio
+vía `@fontsource-variable/manrope`, importada en [src/main.tsx](src/main.tsx):
+sin request a Google y sin parpadeo al cargar.
+
+| Clase | Tamaño | Para qué |
+|---|---|---|
+| `text-display` | `clamp(2.25rem, 1.6rem + 3vw, 4rem)` | Titular del hero |
+| `text-titulo` | `clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem)` | Título de página o sección |
+| `text-subtitulo` | `clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem)` | Nombre de producto, bajadas |
+| (por defecto) | `1rem` | Texto corrido |
+| `text-sm` | `0.875rem` | Secundario, ayudas |
+| `text-xs` | `0.75rem` | Etiquetas, legales |
+
+Los tres primeros usan `clamp()`: escalan con el ancho de la pantalla, así que
+entran en mobile sin romper la jerarquía y respiran en escritorio.
+
+`h1`, `h2` y `h3` ya vienen con `font-weight: 600`, tracking cerrado y
+`text-wrap: balance` desde el CSS base. No hace falta repetirlo.
+
+**Números en columna**: usá `tabular-nums` siempre que haya precios alineados.
+Sin eso, los dígitos tienen anchos distintos y las columnas bailan.
+
+---
+
+## Modo oscuro
+
+Tres estados, no dos: **claro**, **oscuro**, o **seguir al sistema** si el
+usuario nunca eligió. Lo maneja
+[src/context/ThemeContext.tsx](src/context/ThemeContext.tsx), que pone y saca la
+clase `.dark` en el `<html>`.
+
+Si nadie eligió, el sitio sigue al sistema **en vivo**: cambiás el tema del
+sistema operativo y el sitio acompaña, sin recargar.
+
+**El script del `<head>`** en [index.html](index.html) aplica el tema *antes* de
+que React monte. Sin eso, quien usa modo oscuro ve un destello blanco en cada
+carga. Va inline y sin `type="module"` a propósito: los módulos se difieren, y
+diferirlo sería volver a tener el destello.
+
+Para condicionar algo al tema —debería ser raro— la variante es `dark:`:
+
+```jsx
+<div className="opacity-[0.55] dark:opacity-40" />
+```
+
+---
+
+## Componentes
+
+En [src/components/ui.tsx](src/components/ui.tsx). Existen para que un botón se
+vea igual en todas las pantallas.
+
+| Componente | Para qué |
+|---|---|
+| `Boton` | Acción. Variantes: `primario`, `secundario`, `fantasma` |
+| `BotonLink` | Igual, pero navega (React Router) |
+| `BotonAncla` | Igual, pero salta a un ancla de la misma página |
+| `EnlaceFlecha` | Acción secundaria, con flecha, sin peso de botón |
+| `Etiqueta` | Texto chico en mayúsculas con tracking |
+| `Aviso` | Recuadro de advertencia |
+| `Campo` | Etiqueta + campo + texto de ayuda |
+| `entrada` | Clases compartidas por inputs y textareas |
+| `Contenedor` | Ancho máximo y aire lateral |
+| `FlechaCta` | La flecha que se corre al pasar el mouse |
+
+```jsx
+<Boton variante="primario" flecha>Agregar al carrito</Boton>
+<BotonLink to="/catalogo" variante="secundario">Ver todo</BotonLink>
+<Contenedor ancho="angosto">…</Contenedor>
+```
+
+`Contenedor` tiene dos anchos: `normal` (`max-w-6xl`) para grillas y listados,
+`angosto` (`max-w-3xl`) para lectura y formularios.
+
+---
+
+## Layout y espaciado
+
+- **Separación entre hermanos con `gap`**, no con márgenes por elemento. Los
+  márgenes se colapsan o se duplican en silencio.
+- **Secciones**: `py-16 sm:py-20`. Bloques destacados: `py-20 sm:py-28`.
+- **Grillas de producto**: `grid gap-5 sm:grid-cols-2 lg:grid-cols-3`.
+- **Radio**: `rounded-pieza` (2px). Casi recto, a tono con el mueble. Los
+  círculos completos (`rounded-full`) quedan solo para badges y flechas.
+- **Contenido ancho** —tablas, código— va en su propio contenedor con
+  `overflow-x-auto`. La página nunca scrollea de costado.
+
+---
+
+## Mobile
+
+Se diseña para el teléfono y se ensancha, no al revés. Buena parte del tráfico
+llega desde Instagram.
+
+- **Barra fija al pie** en ficha de producto y carrito: en una pantalla larga el
+  botón de comprar queda arriba y hay que ir a buscarlo. Va con el precio a la
+  vista. Acordate de dejar `pb-28` en el contenedor para que no tape contenido.
+- **Menú hamburguesa** que se cierra solo al navegar.
+- **Carrusel de a una tarjeta** en mobile, de a dos desde `sm`: dos tarjetas en
+  360px de ancho quedan ilegibles.
+- Nada de `hover` como única forma de descubrir algo: en el teléfono no existe.
+
+---
+
+## Accesibilidad
+
+Lo mínimo que no se negocia:
+
+- **Foco visible**: ya está en el CSS base, contorno naranja. No lo saques.
+- **`aria-label`** en botones que son solo un ícono (carrito, tema, flechas).
+- **`role="alert"`** en errores, `role="status"` en avisos: los lectores de
+  pantalla no ven que apareció un recuadro.
+- **`aria-hidden="true"`** en todo lo decorativo: íconos junto a texto,
+  esqueletos de carga, fondos.
+- **Movimiento reducido**: el CSS base ya respeta `prefers-reduced-motion`.
+
+---
+
+## Patrones adoptados y descartados
+
+Tomados de tiendas grandes (referencia: boconcept.com) y adaptados:
+
+**Adoptados** — hero con antetítulo y titular en mayúsculas; botones con flecha;
+carrusel de destacados; ficha con línea de atributos bajo el precio; carrito con
+panel de resumen al costado; barra fija en mobile; pie multicolumna.
+
+**Descartados a propósito** — mega menú de dos columnas, buscador, newsletter,
+acordeones de ayuda, fila de categorías. Son patrones de un catálogo de miles de
+productos: con seis piezas se ven vacíos y quedan peor que no tenerlos.
+
+Cuando el catálogo crezca, el primero que conviene recuperar es el buscador.
+
+---
+
+## Lo que falta
+
+**Fotografía de producto.** El sistema está armado alrededor de la imagen y hoy
+son placeholders. El hero usa una textura de láminas de fenólico dibujada con
+CSS: es un buen puente, no el destino. Cuando existan las fotos, esa sección es
+la primera que conviene reemplazar.
+
+**El panel de administración** tiene los tokens aplicados pero sin trabajo
+visual fino. Es legible en los dos modos, que era lo mínimo.
