@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import GaleriaProducto from "../components/GaleriaProducto";
 import { Boton, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProduct } from "../hooks/useProducts";
@@ -47,24 +48,7 @@ export default function ProductDetail() {
         </Link>
 
         <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-14">
-          <div className="flex flex-col gap-4">
-            {product.images.length === 0 && (
-              <div className="aspect-4/3 rounded-pieza bg-superficie-2" />
-            )}
-            {product.images.map((src, i) => (
-              <div
-                key={src}
-                className="aspect-4/3 overflow-hidden rounded-pieza bg-superficie-2"
-              >
-                <img
-                  src={src}
-                  alt={`${product.name} — imagen ${i + 1}`}
-                  className="h-full w-full object-cover"
-                  loading={i === 0 ? "eager" : "lazy"}
-                />
-              </div>
-            ))}
-          </div>
+          <GaleriaProducto imagenes={product.images} nombre={product.name} />
 
           <div className="lg:sticky lg:top-24 lg:self-start">
             <Etiqueta>{product.category}</Etiqueta>

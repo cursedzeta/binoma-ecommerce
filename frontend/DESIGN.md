@@ -187,6 +187,36 @@ lectura y formularios. Los dos salen de tokens.
 
 ---
 
+## Fotografía de producto
+
+Toda foto de producto va por `FotoProducto`, que resuelve dos cosas que antes
+se repetían mal en cada pantalla.
+
+**Encaje.** Entra completa, con `object-contain` sobre un fondo neutro. Nunca se
+recorta: un mueble fotografiado vertical dentro de un recuadro horizontal
+quedaba cortado por la mitad. Las bandas laterales leen como el fondo del
+estudio, no como un error.
+
+**Peso.** Si la URL es de Cloudinary, se le agregan transformaciones solas:
+
+```
+.../image/upload/w_800,c_limit,q_auto,f_auto/v1/binoma/banco.jpg
+```
+
+| | |
+|---|---|
+| `w_800` | El ancho que hace falta ahí, no los 4000 del original |
+| `c_limit` | Achica si sobra, pero **nunca recorta ni deforma** |
+| `q_auto` | Elige la compresión mirando la imagen |
+| `f_auto` | AVIF o WebP según el navegador, JPG en los viejos |
+
+Además genera `srcset`, para que una pantalla común no descargue el doble que
+necesita solo porque existen las Retina.
+
+Los anchos están en `ANCHOS` de [src/lib/imagen.ts](src/lib/imagen.ts), por uso:
+`miniatura`, `tarjeta`, `bloque`, `ficha`. Si la URL no es de Cloudinary —un
+placeholder, una foto de otro lado— se usa tal cual y no se rompe nada.
+
 ## Mobile
 
 Se diseña para el teléfono y se ensancha, no al revés. Buena parte del tráfico

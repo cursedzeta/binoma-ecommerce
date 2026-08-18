@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
 import { formatPrice } from "../lib/format";
+import FotoProducto from "./FotoProducto";
 import { FlechaCta } from "./ui";
 
 /**
@@ -36,7 +37,9 @@ export default function BloqueProducto({ product }: { product: Product }) {
           to={`/producto/${product.slug}`}
           className="group relative overflow-hidden rounded-pieza bg-superficie-2 aspect-4/3 sm:col-span-3"
         >
-          <Foto src={principal} alt={product.name} />
+          <div className="h-full w-full p-4">
+            <FotoProducto src={principal} alt={product.name} uso="bloque" />
+          </div>
 
           {/* El "Ver más" va sobre la foto, abajo a la derecha. Lleva fondo
               propio porque encima de una imagen clara el texto se pierde. */}
@@ -52,35 +55,12 @@ export default function BloqueProducto({ product }: { product: Product }) {
           aria-hidden="true"
           tabIndex={-1}
         >
-          <Foto src={secundaria ?? principal} alt="" />
+          <div className="h-full w-full p-4">
+            <FotoProducto src={secundaria ?? principal} alt="" uso="bloque" />
+          </div>
         </Link>
       </div>
     </article>
   );
 }
 
-function Foto({ src, alt }: { src?: string; alt: string }) {
-  if (!src) {
-    // Sin fotografía, la textura de láminas del fenólico evita el rectángulo
-    // gris vacío. Desaparece sola en cuanto se carga una imagen.
-    return (
-      <div
-        aria-hidden="true"
-        className="h-full w-full opacity-60"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(180deg, var(--color-borde) 0px, var(--color-borde) 3px, transparent 3px, transparent 12px)",
-        }}
-      />
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-    />
-  );
-}

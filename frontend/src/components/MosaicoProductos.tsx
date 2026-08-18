@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Product } from "../types";
+import FotoProducto from "./FotoProducto";
 import { formatPrice } from "../lib/format";
 import { Etiqueta } from "./ui";
 
@@ -35,24 +36,9 @@ function Tarjeta({ product, proporcion }: { product: Product; proporcion: string
       className="group flex flex-col rounded-pieza border border-borde bg-superficie transition hover:border-marca"
     >
       <div className={`relative overflow-hidden bg-superficie-2 ${proporcion}`}>
-        {product.images[0] ? (
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            loading="lazy"
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          // Sin foto, la textura de láminas evita el rectángulo gris vacío.
-          <div
-            aria-hidden="true"
-            className="h-full w-full opacity-60"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(180deg, var(--color-borde) 0px, var(--color-borde) 2px, transparent 2px, transparent 9px)",
-            }}
-          />
-        )}
+        <div className="h-full w-full p-3">
+          <FotoProducto src={product.images[0]} alt={product.name} uso="tarjeta" />
+        </div>
 
         {sinStock && (
           <span className="absolute left-3 top-3 rounded-pieza bg-fondo/95 px-2 py-1 text-xs text-tenue">

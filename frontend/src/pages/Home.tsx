@@ -1,4 +1,5 @@
 import BloqueProducto from "../components/BloqueProducto";
+import FotoProducto from "../components/FotoProducto";
 import { Link } from "react-router-dom";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
 import { formatPrice } from "../lib/format";
@@ -106,24 +107,14 @@ function Hero({ destacado }: { destacado?: Product }) {
 
           <div className="relative">
             <div className="aspect-4/5 overflow-hidden rounded-pieza bg-superficie-2">
-              {foto ? (
-                <img
+              <div className="h-full w-full p-5">
+                <FotoProducto
                   src={foto}
-                  alt={destacado.name}
-                  className="h-full w-full object-cover"
-                  // La imagen del hero es lo primero que se ve: no se difiere.
-                  loading="eager"
+                  alt={destacado?.name ?? ""}
+                  uso="ficha"
+                  prioridad
                 />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="h-full w-full opacity-70"
-                  style={{
-                    backgroundImage:
-                      "repeating-linear-gradient(180deg, var(--color-borde) 0px, var(--color-borde) 3px, transparent 3px, transparent 12px)",
-                  }}
-                />
-              )}
+              </div>
             </div>
 
             {destacado && (

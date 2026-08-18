@@ -5,6 +5,7 @@ import { Boton, BotonLink, Contenedor, Etiqueta } from "../components/ui";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../hooks/useProducts";
 import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
+import FotoProducto from "../components/FotoProducto";
 import { formatPrice } from "../lib/format";
 
 export default function Cart() {
@@ -103,14 +104,13 @@ export default function Cart() {
                     to={`/producto/${product.slug}`}
                     className="h-24 w-32 shrink-0 overflow-hidden rounded-pieza bg-superficie-2"
                   >
-                    {product.images[0] && (
-                      <img
+                    <div className="h-full w-full p-1.5">
+                      <FotoProducto
                         src={product.images[0]}
                         alt={product.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
+                        uso="miniatura"
                       />
-                    )}
+                    </div>
                   </Link>
 
                   <div className="flex min-w-40 flex-1 flex-col justify-between gap-3">
