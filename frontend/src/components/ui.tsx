@@ -171,7 +171,12 @@ export function Campo({
 export const entrada =
   "mt-1.5 w-full rounded-pieza border border-borde bg-superficie px-3 py-2.5 text-tinta placeholder:text-tenue focus:border-marca focus:outline-none";
 
-/** Contenedor de página: ancho máximo y aire lateral, iguales en todo el sitio. */
+/**
+ * Contenedor de página: ancho máximo y aire lateral, iguales en todo el sitio.
+ *
+ * Los valores salen de los tokens --container-* y --spacing-gutter*, así que
+ * cambiar el ancho o el aire del sitio entero se hace en el CSS, no acá.
+ */
 export function Contenedor({
   ancho = "normal",
   className = "",
@@ -181,6 +186,10 @@ export function Contenedor({
   className?: string;
   children: React.ReactNode;
 }) {
-  const max = ancho === "angosto" ? "max-w-3xl" : "max-w-6xl";
-  return <div className={`mx-auto ${max} px-5 sm:px-8 ${className}`}>{children}</div>;
+  const max = ancho === "angosto" ? "max-w-angosto" : "max-w-normal";
+  return (
+    <div className={`mx-auto ${max} px-gutter sm:px-gutter-lg ${className}`}>
+      {children}
+    </div>
+  );
 }

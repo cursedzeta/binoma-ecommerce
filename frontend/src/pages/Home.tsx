@@ -1,5 +1,8 @@
 import CarruselProductos from "../components/CarruselProductos";
+import { Link } from "react-router-dom";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
+import { formatPrice } from "../lib/format";
+import type { Product } from "../types";
 import { useProducts } from "../hooks/useProducts";
 import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
 
@@ -19,7 +22,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero />
+      <Hero destacado={destacados[0]} />
 
       <Seccion
         etiqueta="Destacados"
@@ -47,59 +50,84 @@ export default function Home() {
 }
 
 /**
- * Hero sin fotografía.
+ * Hero editorial: el mensaje a un lado, la pieza al otro.
  *
- * El fondo son láminas horizontales finas: es el canto del fenólico visto de
- * costado, la firma del material con el que trabaja BINOMA. Se dibuja con un
- * repeating-linear-gradient, así que no pesa nada y escala sin pixelarse.
- *
- * Cuando exista la fotografía de producto, esta sección es la primera que
- * conviene reemplazar: una foto buena vende más que cualquier textura.
+ * El panel de la derecha muestra la primera pieza con stock que tenga foto.
+ * Si todavía no hay fotografía, cae en la textura de láminas —el canto del
+ * fenólico visto de costado— en vez de dejar un hueco. Cuando cargues las
+ * fotos, esta sección mejora sola sin tocar código.
  */
-function Hero() {
+function Hero({ destacado }: { destacado?: Product }) {
+  const foto = destacado?.images[0];
+
   return (
     <section className="relative isolate overflow-hidden border-b border-borde">
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 opacity-[0.55] dark:opacity-40"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(180deg, var(--color-superficie-2) 0px, var(--color-superficie-2) 3px, transparent 3px, transparent 11px)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[560px] w-[900px] max-w-[140%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-marca opacity-[0.09] blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-b from-transparent to-fondo"
+        className="pointer-events-none absolute -left-40 top-1/2 -z-10 h-[560px] w-[720px] -translate-y-1/2 rounded-full bg-marca opacity-[0.07] blur-3xl"
       />
 
       <Contenedor className="relative">
-        <div className="flex flex-col items-center py-24 text-center sm:py-32">
-          <img
-            src="/binoma_logo.svg"
-            alt="BINOMA"
-            width={1073}
-            height={225}
-            className="w-full max-w-lg"
-          />
+        <div className="grid items-center gap-12 py-seccion sm:py-seccion-lg lg:grid-cols-2 lg:gap-16">
+          <div>
+            <img
+              src="/binoma_logo.svg"
+              alt="BINOMA"
+              width={1073}
+              height={225}
+              className="h-7 w-auto sm:h-8"
+            />
 
-          <p className="mt-10 text-subtitulo text-tenue">Muebles de diseño en fenólico</p>
+            <h1 className="mt-8 text-display uppercase text-tinta">
+              Estructura honesta
+            </h1>
 
-          <h1 className="mt-3 max-w-3xl text-display uppercase text-tinta">
-            Hecho en Córdoba, pieza por pieza
-          </h1>
+            <p className="mt-6 max-w-md text-subtitulo text-tenue">
+              Muebles de diseño en fenólico. Líneas puras, estructuras
+              autoportantes y el canto a la vista, sin nada que esconder.
+            </p>
 
-          <p className="mt-6 max-w-xl text-tenue">
-            Líneas puras, estructuras autoportantes, cantos vistos y terminación al agua.
-          </p>
+            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <BotonLink to="/catalogo" flecha>
+                Ver el catálogo
+              </BotonLink>
+              <Etiqueta>Córdoba, Argentina</Etiqueta>
+            </div>
+          </div>
 
-          <div className="mt-10">
-            <BotonLink to="/catalogo" flecha>
-              Ver el catálogo
-            </BotonLink>
+          <div className="relative">
+            <div className="aspect-4/5 overflow-hidden rounded-pieza bg-superficie-2">
+              {foto ? (
+                <img
+                  src={foto}
+                  alt={destacado.name}
+                  className="h-full w-full object-cover"
+                  // La imagen del hero es lo primero que se ve: no se difiere.
+                  loading="eager"
+                />
+              ) : (
+                <div
+                  aria-hidden="true"
+                  className="h-full w-full opacity-70"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(180deg, var(--color-borde) 0px, var(--color-borde) 3px, transparent 3px, transparent 12px)",
+                  }}
+                />
+              )}
+            </div>
+
+            {destacado && (
+              <Link
+                to={`/producto/${destacado.slug}`}
+                className="mt-4 flex items-baseline justify-between gap-3 border-b border-borde pb-3 transition hover:border-marca"
+              >
+                <span className="text-tinta">{destacado.name}</span>
+                <span className="shrink-0 text-sm text-tenue">
+                  {formatPrice(destacado.price)}
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </Contenedor>
@@ -110,7 +138,7 @@ function Hero() {
 /** Bloque de marca, al final de la Home: cuenta quién hace los muebles. */
 function Historia() {
   return (
-    <section className="border-t border-borde bg-superficie-2/60 py-20 sm:py-28">
+    <section className="border-t border-borde bg-superficie-2/60 py-seccion-lg sm:py-seccion-lg">
       <Contenedor ancho="angosto" className="text-center">
         <Etiqueta>El taller</Etiqueta>
         <h2 className="mt-3 text-titulo text-tinta">
@@ -144,7 +172,7 @@ function Seccion({
   children: React.ReactNode;
 }) {
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-seccion sm:py-seccion-lg">
       <Contenedor>
         <div className="flex flex-wrap items-end justify-between gap-4 border-b border-borde pb-6">
           <div>

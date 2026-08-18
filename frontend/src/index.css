@@ -72,6 +72,24 @@
   --color-alerta: #8a5a12;
   --color-alerta-suave: #fdf3e2;
 
+  /* --- Espaciado ----------------------------------------------------------
+     El ritmo vertical del sitio, con nombre. Antes cada sección escribía
+     "py-16 sm:py-20" a mano: cambiar el aire de la página entera obligaba a
+     tocar diez archivos y alguno siempre quedaba distinto. */
+  --spacing-seccion: 4rem;
+  --spacing-seccion-lg: 6rem;
+
+  /* Aire lateral. El de mobile es más chico a propósito: en 360px de ancho,
+     cada píxel de margen se le resta a la foto del producto. */
+  --spacing-gutter: 1.25rem;
+  --spacing-gutter-lg: 2rem;
+
+  /* Anchos de página. "normal" para grillas y listados, "angosto" para
+     lectura y formularios: una línea de texto que pasa los 75 caracteres se
+     vuelve incómoda de seguir. */
+  --container-normal: 72rem;
+  --container-angosto: 48rem;
+
   /* --- Otros -------------------------------------------------------------- */
   --radius-pieza: 2px;
 }

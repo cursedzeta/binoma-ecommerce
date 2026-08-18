@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import ProductCard from "../components/ProductCard";
+import MosaicoProductos from "../components/MosaicoProductos";
 import { Contenedor, Etiqueta } from "../components/ui";
 import { useProducts } from "../hooks/useProducts";
 import { useSincronizarCarrito } from "../hooks/useSincronizarCarrito";
@@ -69,13 +69,7 @@ export default function Catalogo() {
           <p className="py-16 text-center text-tenue">No hay piezas en esta categoría.</p>
         )}
 
-        {products && products.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        )}
+        {products && products.length > 0 && <MosaicoProductos products={products} />}
       </div>
     </Contenedor>
   );

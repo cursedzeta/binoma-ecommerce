@@ -157,8 +157,19 @@ vea igual en todas las pantallas.
 <Contenedor ancho="angosto">…</Contenedor>
 ```
 
-`Contenedor` tiene dos anchos: `normal` (`max-w-6xl`) para grillas y listados,
-`angosto` (`max-w-3xl`) para lectura y formularios.
+`Contenedor` tiene dos anchos: `normal` para grillas y listados, `angosto` para
+lectura y formularios. Los dos salen de tokens.
+
+### Espaciado con nombre
+
+| Token | Valor | Utilidad |
+|---|---|---|
+| `--spacing-seccion` | `4rem` | `py-seccion` |
+| `--spacing-seccion-lg` | `6rem` | `py-seccion-lg` |
+| `--spacing-gutter` | `1.25rem` | `px-gutter` |
+| `--spacing-gutter-lg` | `2rem` | `px-gutter-lg` |
+| `--container-normal` | `72rem` | `max-w-normal` |
+| `--container-angosto` | `48rem` | `max-w-angosto` |
 
 ---
 
@@ -166,7 +177,8 @@ vea igual en todas las pantallas.
 
 - **Separación entre hermanos con `gap`**, no con márgenes por elemento. Los
   márgenes se colapsan o se duplican en silencio.
-- **Secciones**: `py-16 sm:py-20`. Bloques destacados: `py-20 sm:py-28`.
+- **Secciones**: `py-seccion sm:py-seccion-lg`. Los valores salen de tokens, no
+  se escriben a mano: cambiar el ritmo de la página entera se hace en el CSS.
 - **Grillas de producto**: `grid gap-5 sm:grid-cols-2 lg:grid-cols-3`.
 - **Radio**: `rounded-pieza` (2px). Casi recto, a tono con el mueble. Los
   círculos completos (`rounded-full`) quedan solo para badges y flechas.
@@ -208,9 +220,22 @@ Lo mínimo que no se negocia:
 
 Tomados de tiendas grandes (referencia: boconcept.com) y adaptados:
 
-**Adoptados** — hero con antetítulo y titular en mayúsculas; botones con flecha;
-carrusel de destacados; ficha con línea de atributos bajo el precio; carrito con
-panel de resumen al costado; barra fija en mobile; pie multicolumna.
+**Adoptados de tiendas grandes** — hero con antetítulo y titular en mayúsculas;
+botones con flecha; carrusel de destacados; ficha con línea de atributos bajo el
+precio; carrito con panel de resumen al costado; barra fija en mobile; pie
+multicolumna.
+
+**Adoptados de la propuesta de Stitch** — tokens de espaciado con nombre; hero
+editorial con el mensaje a un lado y la pieza al otro; grilla de catálogo con
+proporciones mezcladas (`MosaicoProductos`), porque una mesa baja y un banco alto
+no piden el mismo encuadre.
+
+**Rechazados de Stitch, a propósito** — cargar Manrope desde el CDN de Google
+(la servimos nosotros, sin parpadeo ni pedido a terceros); la fuente de íconos
+Material Symbols (usamos SVG en línea, que no descarga nada); su paleta de
+Material, con un verde menta y un rosa que pelean con nuestros estados; y la
+barra de navegación fija al pie en mobile, que chocaría con las barras de compra
+que ya existen en ficha y carrito.
 
 **Descartados a propósito** — mega menú de dos columnas, buscador, newsletter,
 acordeones de ayuda, fila de categorías. Son patrones de un catálogo de miles de
