@@ -225,10 +225,18 @@ botones con flecha; ficha con línea de atributos bajo el precio; carrito con pa
 multicolumna.
 
 **Adoptados de la propuesta de Stitch** — tokens de espaciado con nombre; hero
-editorial con el mensaje a un lado y la pieza al otro; grilla con proporciones mezcladas
-(`MosaicoProductos`), que reemplazó al carrusel en la Home y en el catálogo:
-una mesa baja y un banco alto no piden el mismo encuadre, y una fila que se
-arrastra esconde piezas que conviene que se vean.
+editorial con el mensaje a un lado y la pieza al otro; y dos formas de mostrar
+producto según la pantalla:
+
+- **Home** (`BloqueProducto`): un bloque por pieza, con su nombre, su precio y
+  dos fotos. La grande muestra el mueble entero; la angosta, el detalle del
+  canto o el ensamble, que es lo que distingue al fenólico. Con cuatro piezas
+  conviene destacar cada una en vez de amontonarlas.
+- **Catálogo** (`MosaicoProductos`): grilla con proporciones mezcladas cada
+  cuatro piezas. Una mesa baja y un banco alto no piden el mismo encuadre.
+
+Los dos reemplazaron al carrusel, que escondía piezas detrás de un gesto de
+arrastre.
 
 **Rechazados de Stitch, a propósito** — cargar Manrope desde el CDN de Google
 (la servimos nosotros, sin parpadeo ni pedido a terceros); la fuente de íconos

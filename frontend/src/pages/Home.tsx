@@ -1,4 +1,4 @@
-import MosaicoProductos from "../components/MosaicoProductos";
+import BloqueProducto from "../components/BloqueProducto";
 import { Link } from "react-router-dom";
 import { BotonLink, Contenedor, EnlaceFlecha, Etiqueta } from "../components/ui";
 import { formatPrice } from "../lib/format";
@@ -15,10 +15,11 @@ export default function Home() {
 
   // En el carrusel van primero los que se pueden comprar: mostrar arriba de
   // todo una pieza sin stock sería empezar por una decepción.
+  // Un bloque por pieza: con un catálogo chico entran todas, y las que se
+  // pueden comprar van primero.
   const destacados = (products ?? [])
     .slice()
-    .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0))
-    .slice(0, 6);
+    .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0));
 
   return (
     <>
@@ -41,7 +42,15 @@ export default function Home() {
           <p className="py-12 text-center text-tenue">Todavía no hay piezas cargadas.</p>
         )}
 
-        {destacados.length > 0 && <MosaicoProductos products={destacados} />}
+        {/* El primer bloque no lleva su línea: ya la puso el encabezado de la
+            sección, y dos seguidas se ven como un error. */}
+        {destacados.length > 0 && (
+          <div className="flex flex-col gap-seccion [&>*:first-child]:border-t-0 [&>*:first-child]:pt-0">
+            {destacados.map((p) => (
+              <BloqueProducto key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </Seccion>
 
       <Historia />
