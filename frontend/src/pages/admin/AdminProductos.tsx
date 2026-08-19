@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { formatPrice } from "../../lib/format";
+import { generarSlug, slugEnProgreso } from "../../lib/slug";
 import {
   ApiError,
   borrarProducto,
@@ -12,6 +13,7 @@ import {
 } from "../../services/api";
 
 const VACIO: DatosProducto = {
+  slug: "",
   name: "",
   description: "",
   price: 0,
@@ -31,6 +33,10 @@ export default function AdminProductos() {
   const [editando, setEditando] = useState<string | null>(null);
   const [form, setForm] = useState<DatosProducto>(VACIO);
   const [erroresForm, setErroresForm] = useState<string[]>([]);
+
+  // Mientras nadie lo toque, el slug se rehace solo con cada letra del nombre.
+  // Apenas alguien lo edita a mano, el nombre deja de pisárselo.
+  const [slugTocado, setSlugTocado] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -57,13 +63,20 @@ export default function AdminProductos() {
   function abrirNuevo() {
     setEditando("nuevo");
     setForm(VACIO);
+    setSlugTocado(false);
     setErroresForm([]);
     setAviso(null);
   }
 
   function abrirEdicion(p: ProductoAdmin) {
     setEditando(p.id);
+    // En una pieza que ya existe el slug arranca "tocado" a propósito: su
+    // dirección puede estar circulando por WhatsApp o Instagram, y cambiarle el
+    // nombre no tiene por qué romper esos enlaces. Si se quiere cambiar, se
+    // cambia a mano.
+    setSlugTocado(true);
     setForm({
+      slug: p.slug,
       name: p.name,
       description: p.description,
       price: p.price,
@@ -147,6 +160,8 @@ export default function AdminProductos() {
           esNuevo={editando === "nuevo"}
           form={form}
           setForm={setForm}
+          slugTocado={slugTocado}
+          onTocarSlug={() => setSlugTocado(true)}
           categorias={categorias}
           errores={erroresForm}
           guardando={guardando}
@@ -215,6 +230,8 @@ function Formulario({
   esNuevo,
   form,
   setForm,
+  slugTocado,
+  onTocarSlug,
   categorias,
   errores,
   guardando,
@@ -224,6 +241,8 @@ function Formulario({
   esNuevo: boolean;
   form: DatosProducto;
   setForm: (d: DatosProducto) => void;
+  slugTocado: boolean;
+  onTocarSlug: () => void;
   categorias: string[];
   errores: string[];
   guardando: boolean;
@@ -240,10 +259,49 @@ function Formulario({
         <Campo label="Nombre" className="sm:col-span-2">
           <input
             value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            onChange={(e) => {
+              const name = e.target.value;
+              // El slug se rehace desde el nombre completo, no desde el slug
+              // anterior: así borrar una letra del nombre no deja restos.
+              setForm({
+                ...form,
+                name,
+                ...(slugTocado ? {} : { slug: generarSlug(name) }),
+              });
+            }}
             required
             className={entrada}
           />
+        </Campo>
+
+        <Campo
+          label="Dirección web"
+          className="sm:col-span-2"
+          ayuda={
+            slugTocado
+              ? "Ya no sigue al nombre. Si se repite con otra pieza, el sistema le agrega -2."
+              : "Se arma sola con el nombre. Si la editás, deja de seguirlo."
+          }
+        >
+          {/* El borde y el foco viven en la caja, no en el input: así el
+              prefijo "/producto/" queda adentro del mismo recuadro y el campo
+              se ve igual que los demás. */}
+          <div className="mt-1 flex items-stretch border border-borde focus-within:border-tinta">
+            <span className="shrink-0 self-center py-2 pl-3 text-sm text-tenue">
+              /producto/
+            </span>
+            <input
+              value={form.slug}
+              onChange={(e) => {
+                onTocarSlug();
+                setForm({ ...form, slug: slugEnProgreso(e.target.value) });
+              }}
+              // Al salir se limpia el guion que quedó colgando del final.
+              onBlur={() => setForm({ ...form, slug: generarSlug(form.slug) })}
+              required
+              className="w-full border-0 bg-transparent py-2 pr-3 text-tinta outline-none"
+            />
+          </div>
         </Campo>
 
         <Campo label="Descripción" className="sm:col-span-2" ayuda="Es el texto de venta que ve el cliente en la ficha del producto.">

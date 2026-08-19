@@ -5,29 +5,30 @@ import { formatPrice } from "../lib/format";
 import { Etiqueta } from "./ui";
 
 /**
- * Grilla de productos con proporciones mezcladas.
+ * Grilla de productos, todas las fichas con el mismo recuadro.
  *
- * Una grilla de recuadros todos iguales le queda mal a los muebles: una mesa
- * baja y un banco alto no piden el mismo encuadre, y la foto termina recortada
- * o con aire de sobra.
+ * Se probó mezclar proporciones —alta, ancha, cuadrada— para que la grilla no
+ * quedara monótona, y el resultado fue lo contrario de lo buscado: el catálogo
+ * se veía desordenado y ninguna pieza se leía mejor que otra.
  *
- * El patrón se repite cada cuatro piezas: alta, ancha, cuadrada, cuadrada. Es
- * fijo a propósito, no aleatorio: aleatorio cambiaría en cada carga y el
- * catálogo se sentiría inestable.
+ * Uniforme tiene además una ventaja concreta: las fotos de los muebles son
+ * verticales, así que un recuadro vertical es el que menos recorta. El catálogo
+ * es para comparar piezas entre sí, y para comparar hacen falta las mismas
+ * condiciones.
  */
-const PROPORCIONES = ["aspect-3/4", "aspect-4/3", "aspect-square", "aspect-square"];
+const PROPORCION = "aspect-3/4";
 
 export default function MosaicoProductos({ products }: { products: Product[] }) {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {products.map((p, i) => (
-        <Tarjeta key={p.id} product={p} proporcion={PROPORCIONES[i % PROPORCIONES.length]!} />
+      {products.map((p) => (
+        <Tarjeta key={p.id} product={p} />
       ))}
     </div>
   );
 }
 
-function Tarjeta({ product, proporcion }: { product: Product; proporcion: string }) {
+function Tarjeta({ product }: { product: Product }) {
   const sinStock = product.stock === 0;
 
   return (
@@ -35,7 +36,7 @@ function Tarjeta({ product, proporcion }: { product: Product; proporcion: string
       to={`/producto/${product.slug}`}
       className="group flex flex-col rounded-pieza border border-borde bg-superficie transition hover:border-marca"
     >
-      <div className={`relative overflow-hidden bg-superficie-2 ${proporcion}`}>
+      <div className={`relative overflow-hidden bg-superficie-2 ${PROPORCION}`}>
         <FotoProducto src={product.images[0]} alt={product.name} uso="tarjeta" />
 
         {sinStock && (

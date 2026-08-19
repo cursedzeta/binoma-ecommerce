@@ -25,6 +25,12 @@
      request a terceros y sin parpadeo al cargar. */
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
 
+  /* Acento tipográfico: se usa en UNA palabra del hero, en cursiva. Es una
+     serif del sistema, no una fuente descargada: para un solo término no vale
+     la pena sumar un archivo más al arranque. Si el recurso se extiende a más
+     lugares, ahí sí conviene servir una display italic propia (@fontsource). */
+  --font-cursiva: ui-serif, Georgia, "Times New Roman", serif;
+
   /* --- Escala tipográfica -------------------------------------------------
      Los tamaños de display usan clamp() para escalar con el ancho: en mobile
      entran sin romper la jerarquía, en desktop respiran. */
@@ -64,6 +70,25 @@
      AA, así que se vuelve ilegible al sol, que es donde más se mira un
      teléfono. */
   --color-sobre-marca: #1c1917;
+
+  /* Blanco puro, para el texto que va sobre fondos que no son del sistema:
+     el naranja del hero, la barra apoyada encima de él, y las fotos veladas.
+
+     El reparo de abajo es SOLO para el naranja. Sobre una foto con velo negro
+     al 70% el mismo blanco da más de 12:1, de sobra.
+
+     OJO, esto rompe a propósito la regla de arriba: blanco sobre #ff7f00 da
+     2,5:1 y no llega a AA, que pide 4,5:1 para texto normal y 3:1 para texto
+     grande. Es una decisión de marca tomada por Tomi el 18/08/2026, sabiendo
+     el número. Vale para el hero, que es una pieza de portada con texto muy
+     grande; NO se usa para texto de lectura ni para datos de una compra. */
+  --color-sobre-hero: #ffffff;
+
+  /* Negro puro, y solo para velar fotos: se usa con opacidad encima de una
+     imagen para que el texto tenga sobre qué apoyarse. No es un color de
+     texto ni de fondo —para eso está `tinta`, que es un marrón muy oscuro—.
+     El negro plano acá es correcto: oscurece la foto sin teñirla. */
+  --color-velo: #000000;
 
   /* Estados. Separados de la marca a propósito: el naranja significa "BINOMA",
      no "atención". Si los mezcláramos, un aviso de error competiría con un

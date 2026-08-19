@@ -160,8 +160,15 @@ export type ProductoAdmin = Product & {
   _count: { orderItems: number };
 };
 
-/** Los datos que edita el formulario. El slug lo genera el backend. */
+/**
+ * Los datos que edita el formulario.
+ *
+ * El slug viaja desde el panel, pero el backend lo vuelve a normalizar y, si
+ * choca con otro producto, le agrega -2. O sea que lo que se manda es una
+ * propuesta, no la última palabra.
+ */
 export type DatosProducto = {
+  slug: string;
   name: string;
   description: string;
   price: number;

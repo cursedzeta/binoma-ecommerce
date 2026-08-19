@@ -7,7 +7,14 @@ import { useTema } from "../context/ThemeContext";
  * porque al tocarlo se hace de noche. Es la convención más extendida y evita
  * la duda de "¿esto indica el estado o la acción?".
  */
-export default function BotonTema({ className = "" }: { className?: string }) {
+export default function BotonTema({
+  sobreHero = false,
+  className = "",
+}: {
+  /** true cuando la barra está apoyada sobre el naranja del hero. */
+  sobreHero?: boolean;
+  className?: string;
+}) {
   const { tema, alternar } = useTema();
   const vaAOscuro = tema === "claro";
 
@@ -17,7 +24,11 @@ export default function BotonTema({ className = "" }: { className?: string }) {
       onClick={alternar}
       aria-label={vaAOscuro ? "Activar modo oscuro" : "Activar modo claro"}
       title={vaAOscuro ? "Modo oscuro" : "Modo claro"}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-pieza text-tenue transition hover:bg-superficie-2 hover:text-tinta ${className}`}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-pieza transition ${
+        sobreHero
+          ? "text-sobre-hero hover:bg-sobre-hero/15"
+          : "text-tenue hover:bg-superficie-2 hover:text-tinta"
+      } ${className}`}
     >
       {vaAOscuro ? <IconoLuna /> : <IconoSol />}
     </button>

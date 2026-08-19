@@ -49,6 +49,7 @@ Los mismos nombres en los dos modos. El modo oscuro redefine los valores bajo
 | `marca-texto` | `#c25e00` | `#ff9b3d` | El acento **como texto** |
 | `marca-suave` | `#fff0de` | `#2b1d0d` | Fondos teñidos del acento |
 | `sobre-marca` | `#1c1917` | `#1c1917` | Texto **encima** del naranja |
+| `sobre-hero` | `#ffffff` | `#ffffff` | Blanco, **solo** para el hero naranja |
 | `exito` | `#2f6f4e` | `#6fbf90` | Estado positivo |
 | `alerta` | `#8a5a12` | `#e0ab53` | Advertencias |
 | `alerta-suave` | `#fdf3e2` | `#2a2213` | Fondo de advertencias |
@@ -61,6 +62,20 @@ Son las que más fácil se rompen sin darse cuenta.
 2,3:1 y no llega a AA. Al sol se vuelve ilegible, y el teléfono se mira al sol.
 Por eso existe `sobre-marca`, que vale lo mismo en los dos modos: el naranja no
 cambia de claridad al cambiar el tema.
+
+> **La excepción, y es una sola: el hero.** El titular de la portada y la barra
+> de navegación mientras está apoyada sobre él usan `sobre-hero`, que es blanco
+> puro. Da **2,5:1** y no llega a AA — que pide 4,5:1 para texto normal y 3:1
+> para texto grande.
+>
+> Es una decisión de marca tomada con el número a la vista (Tomi, 18/08/2026):
+> el hero es una pieza de portada, con texto muy grande y sin información que
+> haga falta leer para comprar. **No se extiende**: precios, descripciones,
+> formularios y estados de un pedido siguen con `sobre-marca`.
+>
+> Si algún día se quiere blanco legible, la salida no es cambiar el blanco sino
+> oscurecer el naranja del fondo: para llegar a 4,5:1 hace falta un naranja
+> bastante más oscuro que `#c25e00`, que ya da 4,1:1.
 
 **El naranja de marca no se usa como texto sobre fondo claro.** Da 2,2:1. Para
 texto está `marca-texto`, el mismo naranja oscurecido hasta pasar AA.
@@ -83,10 +98,64 @@ no negro: el negro absoluto enfriaría una marca que es de madera.
 
 ---
 
+## El hero de la Home
+
+Fondo naranja sólido (`bg-marca`), a pantalla completa, y **se esconde detrás de
+la tienda** al scrollear: el hero queda clavado en su lugar con `sticky top-0` y
+el resto de la página le pasa por encima. No se arrastra hacia arriba, lo tapan.
+
+Tres cosas lo sostienen, y si falta una el efecto no se ve:
+
+1. El hero es `sticky top-0` con `z-0`.
+2. Lo que sigue en la Home lleva **fondo propio** (`bg-fondo`) y `z-10`. Sin
+   fondo, el naranja se transparentaría por detrás del contenido.
+3. El hero mide `min-h-dvh`, es decir exactamente una pantalla. Quedarse clavado
+   arriba solo funciona si entra: más alto que eso y se le corta lo de abajo.
+
+**Solo de `lg` para arriba.** En mobile el contenido apilado no entra en una
+pantalla, así que ahí el hero se comporta como una sección normal y se va con el
+scroll.
+
+### La barra de navegación cambia de color
+
+Sobre el naranja: logo y textos en blanco, sin fondo ni borde. Sobre cualquier
+otra cosa: los colores de siempre.
+
+El logo blanco sale del mismo archivo SVG con `brightness-0 invert` —lo pinta de
+negro y lo invierte— en vez de mantener una segunda copia blanca que después se
+olvida de actualizar.
+
+**Cómo se entera la barra.** La barra vive en el layout, por encima de todas las
+rutas; el hero vive dentro de la Home. En vez de un contexto que atraviese medio
+árbol, la Home marca con `data-fin-hero` dónde termina el naranja y la barra lo
+busca en el documento: mientras esa marca esté por debajo del borde de abajo de
+la barra, hay naranja atrás. En las páginas sin hero no hay marca y la barra se
+pinta normal sin que nadie le avise.
+
+> **Al agregar un color a la barra, va adentro del ternario, no como clase
+> extra.** Dos utilidades de color en el mismo elemento las decide el orden del
+> CSS generado, no el orden en que se escriben: pisar `text-tenue` con un
+> `text-sobre-hero` agregado al final es una lotería. Por eso `Etiqueta` y
+> `BotonTema` reciben un prop en vez de un `className`.
+
+### Botones sobre naranja
+
+La variante `claro` (blanco con tinta oscura). La `primario` es naranja: sobre
+el hero desaparecería.
+
+---
+
 ## Tipografía
 
-**Una sola familia: Manrope.** La jerarquía la dan el peso, el tamaño y el
-tracking, no el contraste entre dos tipografías. Se sirve desde nuestro dominio
+**Una sola familia: Manrope**, con una excepción de una palabra. La jerarquía
+la dan el peso, el tamaño y el tracking, no el contraste entre dos tipografías.
+
+La excepción es `font-cursiva` (`--font-cursiva`): una serif del sistema, en
+cursiva, para **una sola palabra** del titular del hero. Es un recurso de
+portada, no una segunda familia del sistema. Se usa una serif del sistema y no
+una fuente descargada porque para un término no vale la pena sumar un archivo
+al arranque; si el recurso se extendiera a más lugares, ahí sí conviene servir
+una display italic propia vía `@fontsource`. Se sirve desde nuestro dominio
 vía `@fontsource-variable/manrope`, importada en [src/main.tsx](src/main.tsx):
 sin request a Google y sin parpadeo al cargar.
 
@@ -269,8 +338,12 @@ producto según la pantalla:
   dos fotos. La grande muestra el mueble entero; la angosta, el detalle del
   canto o el ensamble, que es lo que distingue al fenólico. Con cuatro piezas
   conviene destacar cada una en vez de amontonarlas.
-- **Catálogo** (`MosaicoProductos`): grilla con proporciones mezcladas cada
-  cuatro piezas. Una mesa baja y un banco alto no piden el mismo encuadre.
+- **Catálogo** (`MosaicoProductos`): grilla uniforme, todas las fichas con el
+  mismo recuadro vertical (`aspect-3/4`). Se probó mezclar proporciones —alta,
+  ancha, cuadrada— y se descartó: el catálogo se veía desordenado y ninguna
+  pieza se leía mejor que otra. Uniforme también recorta menos, porque las
+  fotos de los muebles son verticales. El catálogo es para **comparar**, y para
+  comparar hacen falta las mismas condiciones.
 
 Los dos reemplazaron al carrusel, que escondía piezas detrás de un gesto de
 arrastre.

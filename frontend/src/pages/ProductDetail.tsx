@@ -50,7 +50,11 @@ export default function ProductDetail() {
         <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-14">
           <GaleriaProducto imagenes={product.images} nombre={product.name} />
 
-          <div className="lg:sticky lg:top-24 lg:self-start">
+          {/* Fija mientras se recorre la pila de fotos. El tope de alto es
+              un seguro: si una descripción larga la hiciera más alta que la
+              pantalla, quedaría clavada arriba y el botón de comprar caería
+              fuera de la vista, sin forma de llegar. */}
+          <div className="lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
             <Etiqueta>{product.category}</Etiqueta>
             <h1 className="mt-2 text-titulo text-tinta">{product.name}</h1>
 

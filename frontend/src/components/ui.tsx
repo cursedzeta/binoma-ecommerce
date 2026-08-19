@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 // distinto en dos páginas, es porque alguien no usó estas piezas, y eso se
 // nota en la revisión.
 
-type Variante = "primario" | "secundario" | "fantasma";
+type Variante = "primario" | "secundario" | "fantasma" | "claro";
 
 const VARIANTES: Record<Variante, string> = {
   // Texto oscuro sobre el naranja, no blanco: blanco sobre #FF7F00 no llega
@@ -17,6 +17,9 @@ const VARIANTES: Record<Variante, string> = {
   secundario:
     "border border-tinta text-tinta hover:bg-superficie-2 disabled:border-borde disabled:text-tenue",
   fantasma: "text-tenue hover:text-tinta",
+  // Para el hero: sobre naranja, el botón primario desaparecería —es naranja
+  // también—. Invertido, blanco con tinta oscura, es lo único que sobresale.
+  claro: "bg-sobre-hero text-tinta hover:brightness-95",
 };
 
 const BASE =
@@ -104,13 +107,25 @@ export function BotonAncla({
 
 /** Enlace de texto con flecha, para acciones secundarias que no piden un botón. */
 export function EnlaceFlecha({
+  tono = "normal",
   className = "",
   children,
   ...props
-}: React.ComponentProps<typeof Link>) {
+}: React.ComponentProps<typeof Link> & {
+  /** "claro" para cuando va sobre una foto velada o sobre el naranja. */
+  tono?: "normal" | "claro";
+}) {
+  // Igual que en Etiqueta: el color se decide acá adentro. Pisarlo con una
+  // clase de afuera depende del orden del CSS generado, no del orden en que se
+  // escriben las clases.
+  const color =
+    tono === "claro"
+      ? "text-sobre-hero hover:text-sobre-hero/80"
+      : "text-tinta hover:text-marca-texto";
+
   return (
     <Link
-      className={`group/boton inline-flex items-center gap-2 text-sm text-tinta underline-offset-4 transition hover:text-marca-texto ${className}`}
+      className={`group/boton inline-flex items-center gap-2 text-sm underline-offset-4 transition ${color} ${className}`}
       {...props}
     >
       {children}
@@ -121,14 +136,23 @@ export function EnlaceFlecha({
 
 /** Etiqueta chica en mayúsculas: categorías, estados, encabezados de sección. */
 export function Etiqueta({
+  tono = "tenue",
   children,
   className = "",
 }: {
+  /** "claro" para cuando va sobre el naranja del hero. */
+  tono?: "tenue" | "claro";
   children: React.ReactNode;
   className?: string;
 }) {
+  // El color se elige acá y no se pisa desde afuera con otra clase: dos
+  // utilidades de color en el mismo elemento las resuelve el orden del CSS
+  // generado, no el orden en que se escriben, así que la que gana es una
+  // lotería.
+  const color = tono === "claro" ? "text-sobre-hero/80" : "text-tenue";
+
   return (
-    <span className={`text-xs uppercase tracking-[0.14em] text-tenue ${className}`}>
+    <span className={`text-xs uppercase tracking-[0.14em] ${color} ${className}`}>
       {children}
     </span>
   );

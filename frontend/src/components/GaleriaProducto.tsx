@@ -1,15 +1,20 @@
-import { useState } from "react";
 import FotoProducto from "./FotoProducto";
 
 /**
- * Galería de la ficha: una foto grande y la lista de miniaturas al costado.
+ * Las fotos de la ficha, apiladas una debajo de la otra.
  *
- * Antes las fotos iban apiladas una debajo de otra, y para ver la tercera
- * había que scrollear la ficha entera, perdiendo de vista el precio y el botón
- * de comprar. Con la lista al costado se cambia de foto sin moverse.
+ * Acá la foto manda: es la pantalla donde alguien decide si gasta $170.000, y
+ * para eso tiene que ver la pieza entera, no un recorte. Por eso cada imagen
+ * va con su proporción real y es el marco el que se adapta a ella —al revés
+ * que en la home o el catálogo, donde la grilla necesita recuadros parejos y
+ * el recorte es el precio a pagar por eso.
  *
- * En mobile la lista pasa abajo y en horizontal: al costado se comería el
- * ancho, que es justo lo que la foto necesita.
+ * Que el marco se adapte es lo que evita las dos cosas malas a la vez: no hay
+ * recorte, y tampoco quedan las bandas de relleno que aparecen cuando se mete
+ * una foto vertical en un recuadro horizontal.
+ *
+ * La columna de la derecha queda fija mientras se recorre esta pila, así el
+ * precio y el botón de comprar nunca se van de la pantalla.
  */
 export default function GaleriaProducto({
   imagenes,
@@ -18,10 +23,8 @@ export default function GaleriaProducto({
   imagenes: string[];
   nombre: string;
 }) {
-  const [activa, setActiva] = useState(0);
-
-  // Si el producto no tiene fotos, igual mostramos el marco con la textura:
-  // un hueco vacío se lee como que la página se rompió.
+  // Sin fotos igual mostramos un marco con la textura: un hueco vacío se lee
+  // como que la página se rompió.
   if (imagenes.length === 0) {
     return (
       <div className="aspect-4/3 overflow-hidden rounded-pieza bg-superficie-2">
@@ -30,49 +33,21 @@ export default function GaleriaProducto({
     );
   }
 
-  const hayVarias = imagenes.length > 1;
-
   return (
-    <div className="flex flex-col gap-4 sm:flex-row-reverse">
-      {/* row-reverse en el marcado: la foto grande va primero en el orden de
-          lectura, que es lo que importa para un lector de pantalla, pero se
-          dibuja a la derecha de las miniaturas. */}
-      <div className="flex-1 overflow-hidden rounded-pieza bg-superficie-2">
-        <div className="aspect-4/3">
+    <div className="flex flex-col gap-4">
+      {imagenes.map((src, i) => (
+        <figure key={src} className="overflow-hidden rounded-pieza bg-superficie-2">
           <FotoProducto
-            src={imagenes[activa]}
-            alt={`${nombre} — imagen ${activa + 1} de ${imagenes.length}`}
+            src={src}
+            alt={i === 0 ? nombre : `${nombre}, vista ${i + 1}`}
             uso="ficha"
-            prioridad
+            completa
+            // Solo la primera se carga de entrada: es la única que se ve sin
+            // scrollear. Las demás esperan a que alguien baje.
+            prioridad={i === 0}
           />
-        </div>
-      </div>
-
-      {hayVarias && (
-        <div
-          role="tablist"
-          aria-label={`Fotos de ${nombre}`}
-          className="flex shrink-0 gap-3 overflow-x-auto sm:flex-col sm:overflow-visible"
-        >
-          {imagenes.map((src, i) => (
-            <button
-              key={src}
-              type="button"
-              role="tab"
-              aria-selected={i === activa}
-              aria-label={`Ver imagen ${i + 1}`}
-              onClick={() => setActiva(i)}
-              className={`h-16 w-16 shrink-0 overflow-hidden rounded-pieza border bg-superficie-2 transition sm:h-20 sm:w-20 ${
-                i === activa
-                  ? "border-marca"
-                  : "border-borde opacity-70 hover:opacity-100"
-              }`}
-            >
-              <FotoProducto src={src} alt="" uso="miniatura" />
-            </button>
-          ))}
-        </div>
-      )}
+        </figure>
+      ))}
     </div>
   );
 }
