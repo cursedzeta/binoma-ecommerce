@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import BotonTema from "./BotonTema";
 import { Contenedor } from "./ui";
 
 // Cuando exista la página Nosotros (sprint 6, con la cross-promoción de
@@ -145,7 +144,6 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center justify-end gap-1">
-            <BotonTema sobreHero={sobreHero} />
             <EnlaceCarrito total={totalItems} sobreHero={sobreHero} />
           </div>
         </nav>

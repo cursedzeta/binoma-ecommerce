@@ -34,25 +34,27 @@ Cada token de `@theme` genera sus utilidades solo.
 
 ## Color
 
-Los mismos nombres en los dos modos. El modo oscuro redefine los valores bajo
-`.dark`, así que **todo el sitio cambia sin tocar un componente**.
+**Una sola paleta: el sitio es siempre claro.** Hubo un modo oscuro y se sacó el
+18/08/2026 (decisión de Tomi). Si alguien lo quiere de vuelta, lo que hacía era
+redefinir estos mismos tokens bajo una clase `.dark`; ningún componente escribía
+un color, así que la vuelta atrás es un bloque de CSS y el interruptor.
 
-| Token | Claro | Oscuro | Para qué |
-|---|---|---|---|
-| `fondo` | `#faf7f2` | `#16130f` | Fondo de la página |
-| `superficie` | `#fffdfa` | `#201b16` | Tarjetas, paneles |
-| `superficie-2` | `#f2ece3` | `#2a231c` | Fondos de imagen, hover, esqueletos |
-| `tinta` | `#1c1917` | `#f2ede6` | Texto principal |
-| `tenue` | `#6b6259` | `#a99d8e` | Texto secundario |
-| `borde` | `#e7dfd4` | `#342c23` | Bordes y separadores |
-| `marca` | `#ff7f00` | `#ff8a17` | Acento: botones, badges, foco |
-| `marca-texto` | `#c25e00` | `#ff9b3d` | El acento **como texto** |
-| `marca-suave` | `#fff0de` | `#2b1d0d` | Fondos teñidos del acento |
-| `sobre-marca` | `#1c1917` | `#1c1917` | Texto **encima** del naranja |
-| `sobre-hero` | `#ffffff` | `#ffffff` | Blanco, **solo** para el hero naranja |
-| `exito` | `#2f6f4e` | `#6fbf90` | Estado positivo |
-| `alerta` | `#8a5a12` | `#e0ab53` | Advertencias |
-| `alerta-suave` | `#fdf3e2` | `#2a2213` | Fondo de advertencias |
+| Token | Claro | Para qué |
+|---|---|---|
+| `fondo` | `#faf7f2` | Fondo de la página |
+| `superficie` | `#fffdfa` | Tarjetas, paneles |
+| `superficie-2` | `#f2ece3` | Fondos de imagen, hover, esqueletos |
+| `tinta` | `#1c1917` | Texto principal |
+| `tenue` | `#6b6259` | Texto secundario |
+| `borde` | `#e7dfd4` | Bordes y separadores |
+| `marca` | `#ff7f00` | Acento: botones, badges, foco |
+| `marca-texto` | `#c25e00` | El acento **como texto** |
+| `marca-suave` | `#fff0de` | Fondos teñidos del acento |
+| `sobre-marca` | `#1c1917` | Texto **encima** del naranja |
+| `sobre-hero` | `#ffffff` | Blanco, **solo** para el hero naranja |
+| `exito` | `#2f6f4e` | Estado positivo |
+| `alerta` | `#8a5a12` | Advertencias |
+| `alerta-suave` | `#fdf3e2` | Fondo de advertencias |
 
 ### Las tres decisiones de contraste
 
@@ -60,8 +62,7 @@ Son las que más fácil se rompen sin darse cuenta.
 
 **El texto sobre el naranja es oscuro, no blanco.** Blanco sobre `#ff7f00` da
 2,3:1 y no llega a AA. Al sol se vuelve ilegible, y el teléfono se mira al sol.
-Por eso existe `sobre-marca`, que vale lo mismo en los dos modos: el naranja no
-cambia de claridad al cambiar el tema.
+Por eso existe `sobre-marca`.
 
 > **La excepción, y es una sola: el hero.** El titular de la portada y la barra
 > de navegación mientras está apoyada sobre él usan `sobre-hero`, que es blanco
@@ -92,9 +93,10 @@ visualmente con el botón de comprar.
 
 ### Por qué estos neutros
 
-El fondo claro es hueso cálido, no blanco puro: el blanco con el naranja da un
-contraste duro, de aviso más que de mueble. El oscuro es un marrón muy oscuro,
-no negro: el negro absoluto enfriaría una marca que es de madera.
+El fondo es hueso cálido, no blanco puro: el blanco con el naranja da un
+contraste duro, de aviso más que de mueble. Y las fotos de las piezas se apoyan
+sobre un fondo de estudio claro, así que la página las acompaña en vez de
+pelearles.
 
 ---
 
@@ -136,7 +138,7 @@ pinta normal sin que nadie le avise.
 > extra.** Dos utilidades de color en el mismo elemento las decide el orden del
 > CSS generado, no el orden en que se escriben: pisar `text-tenue` con un
 > `text-sobre-hero` agregado al final es una lotería. Por eso `Etiqueta` y
-> `BotonTema` reciben un prop en vez de un `className`.
+> `EnlaceFlecha` reciben un prop en vez de un `className`.
 
 ### Botones sobre naranja
 
@@ -179,26 +181,29 @@ Sin eso, los dígitos tienen anchos distintos y las columnas bailan.
 
 ---
 
-## Modo oscuro
+## Un solo tema
 
-Tres estados, no dos: **claro**, **oscuro**, o **seguir al sistema** si el
-usuario nunca eligió. Lo maneja
-[src/context/ThemeContext.tsx](src/context/ThemeContext.tsx), que pone y saca la
-clase `.dark` en el `<html>`.
+El sitio es siempre claro. **No hay variante `dark:`, ni interruptor, ni clase
+`.dark`**: si escribís `dark:algo` no va a hacer nada, porque la variante ya no
+está declarada.
 
-Si nadie eligió, el sitio sigue al sistema **en vivo**: cambiás el tema del
-sistema operativo y el sitio acompaña, sin recargar.
+Lo único que queda de todo esto es una línea en el CSS base:
 
-**El script del `<head>`** en [index.html](index.html) aplica el tema *antes* de
-que React monte. Sin eso, quien usa modo oscuro ve un destello blanco en cada
-carga. Va inline y sin `type="module"` a propósito: los módulos se difieren, y
-diferirlo sería volver a tener el destello.
-
-Para condicionar algo al tema —debería ser raro— la variante es `dark:`:
-
-```jsx
-<div className="opacity-[0.55] dark:opacity-40" />
+```css
+html { color-scheme: light; }
 ```
+
+Le avisa al navegador que no hay versión oscura, así los controles nativos
+—barras de scroll, `<select>`, campos de fecha— se pintan claros aunque el
+sistema operativo esté en modo oscuro. Sin esa línea, en Windows con tema
+oscuro un desplegable puede salir negro en medio de una página clara.
+
+**Si algún día se quiere de vuelta**, lo que había era: los mismos tokens
+redefinidos bajo `.dark`, un contexto que ponía y sacaba esa clase con tres
+estados (claro / oscuro / seguir al sistema), y un script inline en el `<head>`
+que aplicaba la clase antes de que React montara —sin eso, quien usaba oscuro
+veía un destello blanco en cada carga—. Está en el historial de git, en el
+commit que lo sacó.
 
 ---
 
@@ -313,7 +318,7 @@ llega desde Instagram.
 Lo mínimo que no se negocia:
 
 - **Foco visible**: ya está en el CSS base, contorno naranja. No lo saques.
-- **`aria-label`** en botones que son solo un ícono (carrito, tema, flechas).
+- **`aria-label`** en botones que son solo un ícono (carrito, menú, flechas).
 - **`role="alert"`** en errores, `role="status"` en avisos: los lectores de
   pantalla no ven que apareció un recuadro.
 - **`aria-hidden="true"`** en todo lo decorativo: íconos junto a texto,

@@ -8,35 +8,8 @@
       name="description"
       content="BINOMA — muebles de diseño en fenólico. Córdoba, Argentina."
     />
-    <meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#16130f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#faf7f2" />
     <title>Binoma</title>
-
-    <!--
-      Aplica el tema ANTES de que React monte. Sin esto, quien tiene el modo
-      oscuro elegido ve un destello claro en cada carga: el navegador pinta el
-      fondo por defecto y recién después React agrega la clase.
-
-      Va inline y sin type="module" a propósito: los módulos se difieren, y
-      diferirlo sería volver a tener el destello.
-    -->
-    <script>
-      (function () {
-        try {
-          var guardado = localStorage.getItem("binoma:tema");
-          var oscuro =
-            guardado === "oscuro" ||
-            (guardado === null &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches);
-          if (oscuro) {
-            document.documentElement.classList.add("dark");
-            document.documentElement.style.colorScheme = "dark";
-          }
-        } catch (e) {
-          /* Sin localStorage arranca en claro, que es el valor por defecto. */
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

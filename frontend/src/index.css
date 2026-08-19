@@ -12,10 +12,6 @@
    Si algo necesita un color que no está acá, se agrega acá primero.
    ========================================================================== */
 
-/* El modo oscuro se activa con la clase .dark en el <html>, que pone y saca
-   el ThemeContext. Tailwind v4 no tiene darkMode:'class': se declara así. */
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
   /* --- Tipografía ---------------------------------------------------------
      Una sola familia para todo: Manrope. La jerarquía la dan el peso, el
@@ -45,7 +41,12 @@
   --text-subtitulo: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
   --text-subtitulo--line-height: 1.3;
 
-  /* --- Color: modo claro --------------------------------------------------
+  /* --- Color -------------------------------------------------------------
+     Una sola paleta: el sitio es siempre claro. Hubo un modo oscuro y se
+     sacó a propósito el 18/08/2026 — mantener dos paletas obliga a verificar
+     cada pantalla dos veces, y la tienda vive de fotos de madera sobre fondo
+     claro.
+
      El fondo es hueso cálido, no blanco puro: el blanco puro con el naranja
      de marca da un contraste duro, de aviso más que de mueble. */
   --color-fondo: #faf7f2;
@@ -65,10 +66,9 @@
   --color-marca-texto: #c25e00;
   --color-marca-suave: #fff0de;
 
-  /* El texto que va ENCIMA del naranja. Es oscuro en los dos modos, porque el
-     naranja no cambia de claridad: blanco sobre #ff7f00 da 2,3:1 y no llega a
-     AA, así que se vuelve ilegible al sol, que es donde más se mira un
-     teléfono. */
+  /* El texto que va ENCIMA del naranja, y es oscuro: blanco sobre #ff7f00 da
+     2,3:1 y no llega a AA, así que se vuelve ilegible al sol, que es donde más
+     se mira un teléfono. */
   --color-sobre-marca: #1c1917;
 
   /* Blanco puro, para el texto que va sobre fondos que no son del sistema:
@@ -119,39 +119,17 @@
   --radius-pieza: 2px;
 }
 
-/* --- Color: modo oscuro ---------------------------------------------------
-   Redefinir los mismos tokens alcanza: las utilidades de Tailwind apuntan a
-   estas variables, así que todo el sitio cambia sin tocar un solo componente.
-
-   El fondo es un marrón muy oscuro, no negro puro: el negro absoluto sobre
-   pantallas OLED genera un contraste que cansa, y acá además enfriaría una
-   marca que es de madera. */
-.dark {
-  --color-fondo: #16130f;
-  --color-superficie: #201b16;
-  --color-superficie-2: #2a231c;
-
-  --color-tinta: #f2ede6;
-  --color-tenue: #a99d8e;
-  --color-borde: #342c23;
-
-  /* Sobre fondo oscuro el naranja rinde distinto: se aclara apenas para
-     mantenerse vivo, y como texto ya pasa AA sin necesidad de oscurecerlo. */
-  --color-marca: #ff8a17;
-  --color-marca-texto: #ff9b3d;
-  --color-marca-suave: #2b1d0d;
-
-  --color-exito: #6fbf90;
-  --color-alerta: #e0ab53;
-  --color-alerta-suave: #2a2213;
-}
-
 /* --- Base ---------------------------------------------------------------- */
 
 html {
-  /* Sin esto, el cambio de tema hace saltar la página cuando aparece o
-     desaparece la barra de scroll. */
+  /* Sin esto, la página salta de costado cuando aparece o desaparece la barra
+     de scroll al navegar entre una pantalla larga y una corta. */
   scrollbar-gutter: stable;
+  /* Le avisa al navegador que no hay versión oscura: los controles nativos
+     —barras de scroll, campos de formulario— se pintan claros aunque el
+     sistema operativo esté en oscuro. Sin esto, en Windows en modo oscuro un
+     <select> puede salir con fondo negro en medio de una página clara. */
+  color-scheme: light;
 }
 
 body {
