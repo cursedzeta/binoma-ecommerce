@@ -62,7 +62,6 @@ export default function Footer() {
           <span className="rounded-pieza border border-borde px-2.5 py-1 text-xs font-medium text-tenue">
             Mercado Pago
           </span>
-          <span className="text-xs text-tenue">Tarjeta, débito y efectivo</span>
         </div>
       </Contenedor>
     </footer>

@@ -121,6 +121,34 @@
 
 /* --- Base ---------------------------------------------------------------- */
 
+/* --- Escala del sitio en escritorio ---------------------------------------
+
+   Todo el sistema está medido en rem, así que el tamaño de fuente de la raíz
+   funciona como el zoom del navegador: moverlo acá achica o agranda texto,
+   espaciados, anchos de columna y bordes, todo junto y en la misma proporción.
+
+   Está en 90% porque a ese tamaño la tienda se ve como queremos en un monitor
+   normal. Para ajustarlo, este número y nada más.
+
+   Dos decisiones:
+
+   - En %, no en px. Un porcentaje se aplica SOBRE el tamaño que el usuario
+     tenga configurado en su navegador. Quien agrandó la letra por necesidad
+     sigue viendo todo más grande; con un valor en px le estaríamos pisando esa
+     configuración.
+   - Solo de 64rem para arriba. En un teléfono el texto ya está al límite de lo
+     cómodo y achicarlo un 10% más lo haría difícil de leer. Los teléfonos
+     quedan al 100%.
+
+   Los breakpoints NO se mueven: los rem de un media query se miden contra el
+   tamaño inicial del navegador, no contra este. Así que esto cambia cómo se ve
+   el sitio, no cuándo cambia de disposición. */
+@media (min-width: 64rem) {
+  html {
+    font-size: 90%;
+  }
+}
+
 html {
   /* Sin esto, la página salta de costado cuando aparece o desaparece la barra
      de scroll al navegar entre una pantalla larga y una corta. */

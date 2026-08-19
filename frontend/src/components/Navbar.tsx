@@ -239,7 +239,7 @@ function EnlaceCarrito({ total, sobreHero }: { total: number; sobreHero: boolean
       </svg>
       {total > 0 && (
         <span
-          className={`absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold ${
+          className={`absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-semibold ${
             // Sobre el naranja un globito naranja no se vería. Invertido:
             // blanco con el número en naranja oscuro.
             sobreHero ? "bg-sobre-hero text-marca-texto" : "bg-marca text-sobre-marca"

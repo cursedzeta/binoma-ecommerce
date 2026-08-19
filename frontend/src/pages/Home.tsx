@@ -150,7 +150,11 @@ function Hero({ destacado }: { destacado?: Product }) {
                 quedaba con el ancho de la columna. Si alguna vez hace falta
                 limitar el tamaño, va como `max-w` acá, en el padre, para que
                 las dos hereden la misma medida. */}
-          <div className="relative lg:max-w-[400px]">
+          {/* En rem y no en px: los px se quedan fijos cuando cambia la
+              escala del sitio (el font-size de la raíz, en index.css), y la
+              foto se agrandaría respecto de todo lo demás. 25rem son los
+              400px de antes. */}
+          <div className="relative lg:max-w-[25rem]">
             <div className="group relative aspect-4/5 w-full overflow-hidden rounded-pieza bg-superficie-2">
               <FotoProducto
                 src={foto}
